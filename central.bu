@@ -47,16 +47,14 @@ systemd:
         After=network-online.target
         # Run after package installation to ensure system is ready
         After=rpm-ostree-install-cockpit.service
-        ConditionPathExists=!/var/lib/%N.stamp
-
+        ConditionPathExists=!/etc/ssh/sshd_config.d/02-enable-passwords.conf
         [Service]
         Type=oneshot
         RemainAfterExit=yes
         # Enable password authentication (consider security implications)
         ExecStart=/bin/sh -c "echo 'PasswordAuthentication yes' > /etc/ssh/sshd_config.d/02-enable-passwords.conf"
         ExecStart=/bin/systemctl try-restart sshd
-        ExecStart=/bin/touch /var/lib/%N.stamp
-
+        
         [Install]
         WantedBy=multi-user.target
 
