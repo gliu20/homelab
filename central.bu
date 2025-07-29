@@ -52,10 +52,9 @@ systemd:
         [Service]
         Type=oneshot
         RemainAfterExit=yes
-        ExecStart=/bin/sh -c "echo 'PasswordAuthentication yes' | sudo tee /etc/ssh/sshd_config.d/02-enable-passwords.conf"
-        ExecStart=/bin/sh -c "sudo systemctl try-restart sshd"
-
-
+        # Enable password authentication (consider security implications)
+        ExecStart=/bin/sh -c "echo 'PasswordAuthentication yes' > /etc/ssh/sshd_config.d/02-enable-passwords.conf"
+        ExecStart=/bin/systemctl try-restart sshd
         ExecStart=/bin/touch /var/lib/%N.stamp
 
         [Install]
