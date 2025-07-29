@@ -28,12 +28,11 @@ systemd:
         RemainAfterExit=yes
         # Install Cockpit packages with --allow-inactive to prevent failures
         # if packages are already included in the base image
-        ExecStart=/usr/bin/rpm-ostree install -y --allow-inactive \
+        ExecStart=/usr/bin/rpm-ostree install -y --apply-live --allow-inactive \
           cockpit-system cockpit-files cockpit-networkmanager \
           cockpit-ostree cockpit-podman cockpit-selinux cockpit-storaged \
           cockpit-machines cockpit-sosreport
         ExecStart=/bin/touch /var/lib/%N.stamp
-        ExecStart=/bin/systemctl --no-block reboot
 
         [Install]
         WantedBy=multi-user.target
@@ -45,7 +44,6 @@ systemd:
         Description=Allow SSH password authentication
         Wants=network-online.target
         After=network-online.target
-        # Run after package installation to ensure system is ready
         After=rpm-ostree-install-cockpit.service
         ConditionPathExists=!/etc/ssh/sshd_config.d/02-enable-passwords.conf
         [Service]
@@ -72,11 +70,8 @@ systemd:
         [Service]
         Type=oneshot
         RemainAfterExit=yes
-        # Install Cockpit web socket container
         ExecStart=/usr/bin/podman container runlabel INSTALL quay.io/cockpit/ws
-        # Run Cockpit web socket container
         ExecStart=/usr/bin/podman container runlabel --name cockpit-ws RUN quay.io/cockpit/ws
-        # Enable and start Cockpit service
         ExecStart=/usr/bin/systemctl enable cockpit.service
         ExecStart=/usr/bin/systemctl start cockpit.service
         ExecStart=/bin/touch /var/lib/%N.stamp
