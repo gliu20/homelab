@@ -29,9 +29,10 @@ systemd:
         # Install Cockpit packages with --allow-inactive to prevent failures
         # if packages are already included in the base image
         ExecStart=/usr/bin/rpm-ostree install -y --apply-live --allow-inactive \
-          cockpit-system cockpit-files cockpit-networkmanager \
-          cockpit-ostree cockpit-podman cockpit-selinux cockpit-storaged \
-          cockpit-machines cockpit-sosreport
+          cockpit-system cockpit-ostree cockpit-networkmanager \
+          cockpit-podman cockpit-machines cockpit-selinux cockpit-storaged \
+          cockpit-sosreport cockpit-files \
+          cockpit-sensors cockpit-tailscale cockpit-navigator cockpit-file-sharing
         ExecStart=/bin/touch /var/lib/%N.stamp
 
         [Install]
