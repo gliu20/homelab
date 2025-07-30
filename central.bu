@@ -5,8 +5,9 @@ passwd:
   users:
     - name: user
       password_hash: TODO_ENTER_HASH
-      ssh_authorized_keys: 
-        - TODO_ENTER_SSH_KEYS
+      groups:
+        - wheel
+      shell: /bin/bash
 systemd:
   units:
     # Installing layered packages with rpm-ostree following best practice 
