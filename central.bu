@@ -32,7 +32,9 @@ systemd:
           cockpit-system cockpit-ostree cockpit-networkmanager \
           cockpit-podman cockpit-machines cockpit-selinux cockpit-storaged \
           cockpit-sosreport cockpit-files \
-          cockpit-sensors cockpit-tailscale cockpit-navigator cockpit-file-sharing
+          # These do not yet exist in Core OS repos so we will have to manually
+          # install later
+          # cockpit-sensors cockpit-tailscale cockpit-navigator cockpit-file-sharing
         ExecStart=/bin/touch /var/lib/%N.stamp
 
         [Install]
