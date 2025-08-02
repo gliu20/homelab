@@ -26,7 +26,7 @@ Ideally would be able to archive pages for offline reading, keep list of links, 
 * https://github.com/Kinto/kinto/ - https://docs.kinto-storage.org/en/stable/ -JSON storage
 
 ### DX
-* Gitea
+* https://github.com/go-gitea/gitea - Gitea
 * https://codeberg.org/forgejo/forgejo
 
 ### Productivity
