@@ -12,7 +12,6 @@
 * https://github.com/toeverything/AFFiNE - https://docs.affine.pro/self-host-affine/install/docker-compose-recommend - ********
 
 
-
 ### Web
 Ideally would be able to archive pages for offline reading, keep list of links, maintain metadata about a link, screenshot / preview, shorten links
 * https://github.com/go-shiori/shiori - Bookmarks
@@ -21,7 +20,7 @@ Ideally would be able to archive pages for offline reading, keep list of links, 
 
 ### Security
 * https://github.com/dani-garcia/vaultwarden - Password Manager
-
+* https://github.com/getsops/sops - Dev Secrets (investigate AGE, too)
 ### Micro-apps
 * https://github.com/Kinto/kinto/ - https://docs.kinto-storage.org/en/stable/ -JSON storage
 
@@ -32,6 +31,7 @@ Ideally would be able to archive pages for offline reading, keep list of links, 
 ### Productivity
 * Excalidraw?
 * TODO tracker?
+* https://github.com/suitenumerique/docs - Docs/basic wiki
 
 # References
 * https://coreos.github.io/butane/getting-started/
