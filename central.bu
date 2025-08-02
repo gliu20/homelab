@@ -10,7 +10,7 @@ passwd:
       shell: /bin/bash
 systemd:
   units:
-    # Installing layered packages with rpm-ostree following best practice 
+    # Installing layered packages with rpm-ostree following best practice
     # in docs: https://docs.fedoraproject.org/en-US/fedora-coreos/os-extensions/
     - name: rpm-ostree-install-cockpit.service
       enabled: true
@@ -29,7 +29,7 @@ systemd:
         RemainAfterExit=yes
         # Install Cockpit packages with --allow-inactive to prevent failures
         # if packages are already included in the base image
-        ExecStart=/usr/bin/rpm-ostree install -y --apply-live --allow-inactive \
+        ExecStart=/usr/bin/rpm-ostree install -y --allow-inactive \
           cockpit-system cockpit-ostree cockpit-networkmanager \
           cockpit-podman cockpit-machines cockpit-selinux cockpit-storaged \
           cockpit-sosreport cockpit-files \
@@ -37,6 +37,8 @@ systemd:
           # install later
           # cockpit-sensors cockpit-tailscale cockpit-navigator cockpit-file-sharing
         ExecStart=/bin/touch /var/lib/%N.stamp
+        ExecStart=/bin/systemctl --no-block reboot
+
 
         [Install]
         WantedBy=multi-user.target
@@ -56,7 +58,7 @@ systemd:
         # Enable password authentication (consider security implications)
         ExecStart=/bin/sh -c "echo 'PasswordAuthentication yes' > /etc/ssh/sshd_config.d/02-enable-passwords.conf"
         ExecStart=/bin/systemctl try-restart sshd
-        
+
         [Install]
         WantedBy=multi-user.target
 
