@@ -37,7 +37,8 @@ systemd:
           # install later
           # cockpit-sensors cockpit-tailscale cockpit-navigator cockpit-file-sharing
         ExecStart=/bin/touch /var/lib/%N.stamp
-        ExecStart=/bin/systemctl --no-block reboot
+        ExecStart=/usr/bin/rpm-ostree status --pending-exit-77 && \
+          /bin/systemctl --no-block reboot
 
 
         [Install]
