@@ -41,3 +41,4 @@ Ideally would be able to archive pages for offline reading, keep list of links, 
 * https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html
 * https://chrisliebaer.de/blog/gitea-actions/
 * https://just.systems/man/en/
+* https://github.com/FiloSottile/age/issues/578
