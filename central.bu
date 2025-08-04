@@ -1,6 +1,11 @@
 variant: fcos
 version: 1.6.0
 
+ignition:
+  config: 
+    merge:
+      - local: "cockpit.bu"
+
 passwd:
   users:
     - name: user
@@ -8,80 +13,3 @@ passwd:
       groups:
         - wheel
       shell: /bin/bash
-systemd:
-  units:
-    # Installing layered packages with rpm-ostree following best practice
-    # in docs: https://docs.fedoraproject.org/en-US/fedora-coreos/os-extensions/
-    - name: rpm-ostree-install-cockpit.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Layer Cockpit with rpm-ostree
-        Wants=network-online.target
-        After=network-online.target
-        # We run before `zincati.service` to avoid conflicting rpm-ostree
-        # transactions.
-        Before=zincati.service
-        ConditionPathExists=!/var/lib/%N.stamp
-
-        [Service]
-        Type=oneshot
-        RemainAfterExit=yes
-        # Install Cockpit packages with --allow-inactive to prevent failures
-        # if packages are already included in the base image
-        ExecStart=/usr/bin/rpm-ostree install -y --allow-inactive \
-          cockpit-system cockpit-ostree cockpit-networkmanager \
-          cockpit-podman cockpit-machines cockpit-selinux cockpit-storaged \
-          cockpit-sosreport cockpit-files \
-          # These do not yet exist in Core OS repos so we will have to manually
-          # install later
-          # cockpit-sensors cockpit-tailscale cockpit-navigator cockpit-file-sharing
-        ExecStart=/bin/touch /var/lib/%N.stamp
-        ExecStart=/usr/bin/rpm-ostree status --pending-exit-77 && \
-          /bin/systemctl --no-block reboot
-
-
-        [Install]
-        WantedBy=multi-user.target
-
-    - name: enable-ssh-password-auth.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Allow SSH password authentication
-        Wants=network-online.target
-        After=network-online.target
-        After=rpm-ostree-install-cockpit.service
-        ConditionPathExists=!/etc/ssh/sshd_config.d/02-enable-passwords.conf
-        [Service]
-        Type=oneshot
-        RemainAfterExit=yes
-        # Enable password authentication (consider security implications)
-        ExecStart=/bin/sh -c "echo 'PasswordAuthentication yes' > /etc/ssh/sshd_config.d/02-enable-passwords.conf"
-        ExecStart=/bin/systemctl try-restart sshd
-
-        [Install]
-        WantedBy=multi-user.target
-
-    - name: enable-cockpit-ws.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Set up Cockpit web service
-        Wants=network-online.target
-        After=network-online.target
-        # Ensure Cockpit packages are installed first
-        After=rpm-ostree-install-cockpit.service
-        ConditionPathExists=!/var/lib/%N.stamp
-
-        [Service]
-        Type=oneshot
-        RemainAfterExit=yes
-        ExecStart=/usr/bin/podman container runlabel INSTALL quay.io/cockpit/ws
-        ExecStart=/usr/bin/podman container runlabel --name cockpit-ws RUN quay.io/cockpit/ws
-        ExecStart=/usr/bin/systemctl enable cockpit.service
-        ExecStart=/usr/bin/systemctl start cockpit.service
-        ExecStart=/bin/touch /var/lib/%N.stamp
-
-        [Install]
-        WantedBy=multi-user.target
