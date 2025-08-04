@@ -2,6 +2,9 @@ variant: fcos
 version: 1.6.0
 
 
+# Password authentication required for Cockpit login to work
+# Security: This is okay as long as central is not exposed
+# to the broader internet
 storage:
   files:
     - path: /etc/ssh/sshd_config.d/02-enable-passwords.conf
@@ -39,6 +42,9 @@ systemd:
           # install later
           # cockpit-sensors cockpit-tailscale cockpit-navigator cockpit-file-sharing
         ExecStart=/bin/touch /var/lib/%N.stamp
+        # A reboot-less approach is not reliable with apply-live as
+        # it can fail if the packages already exist. Hence, forcing a
+        # reboot whenever there is a pending deployment
         ExecStart=/usr/bin/rpm-ostree status --pending-exit-77 && \
           /bin/systemctl --no-block reboot
 
