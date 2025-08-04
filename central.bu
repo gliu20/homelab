@@ -3,7 +3,7 @@ version: 1.6.0
 ignition:
   config: 
     merge:
-      - local: cockpit.bu
+      - local: services/cockpit/cockpit.bu
 passwd:
   users:
     - name: user
