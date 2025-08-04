@@ -5,7 +5,11 @@ default: help
 jq := require("jq")
 podman := require("podman")
 just := require("just")
+
+# Container images
+
 butane_img := "quay.io/coreos/butane:release"
+sops_img := "quay.io/getsops/sops:v3.10.2"
 yq_img := "ghcr.io/mikefarah/yq"
 
 build in_file="central.bu" out_file="central.ign":
@@ -18,6 +22,7 @@ alias f := format
 
 format: just-format butane-format
 
+# We do not trust the images so we disallow network and most permissions
 [group("podman-tools")]
 podman_run img args:
     @podman run --interactive --rm -v "${PWD}:/pwd" --workdir /pwd \
@@ -26,6 +31,9 @@ podman_run img args:
 
 [group("podman-tools")]
 butane args: (podman_run butane_img args)
+
+[group("podman-tools")]
+sops args: (podman_run sops_img args)
 
 [group("podman-tools")]
 yq args: (podman_run yq_img args)
@@ -40,7 +48,7 @@ butane-format:
     set -euo pipefail
     find . -type f -name "*.bu" -print0 | while IFS= read -r -d '' file; do
         echo "Formatting $file..."
-        # We need to pipe in /dev/null otherwise `just`` will consume
+        # We need to pipe in /dev/null otherwise `just` will consume
         # rest of stdin, prematurely ending the loop
         just yq-pretty-print "$file" < /dev/null
     done
