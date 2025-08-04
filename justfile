@@ -1,44 +1,10 @@
+
 default: help
 
-check-dev-deps:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    
-    dependencies=("jq" "just" "podman")
-    missing=()
-    
-    check_dependency()
-    {
-        local cmd="$1"
-        if command -v "$cmd" &> /dev/null; then
-            echo "  $cmd: $(command -v "$cmd")"
-            return 0
-        else
-            echo "  $cmd: not found"
-            return 1
-        fi
-    }
-
-    echo "Checking development dependencies..."
-
-    for dep in "${dependencies[@]}"; do
-        if ! check_dependency "$dep"; then
-            missing+=("$dep")
-        fi
-    done
-    
-    if [ ${#missing[@]} -eq 0 ]; then
-        echo "All development dependencies are installed"
-    else
-        echo "Missing required development dependencies:"
-        for dep in "${missing[@]}"; do
-            echo "  - $dep"
-        done
-        echo ""
-        echo "Please install the missing dependencies before continuing."
-        exit 1
-    fi
-
+# We expect just >= 1.39.0 for require function to work
+jq := require("jq")
+podman := require("podman")
+just := require("just")
 
 build:
     #!/usr/bin/env bash
