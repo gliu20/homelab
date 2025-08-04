@@ -1,7 +1,5 @@
 variant: fcos
 version: 1.6.0
-
-
 # Password authentication required for Cockpit login to work
 # Security: This is okay as long as central is not exposed
 # to the broader internet
@@ -12,7 +10,6 @@ storage:
       contents:
         inline: |
           PasswordAuthentication yes
-
 systemd:
   units:
     # Installing layered packages with rpm-ostree following best practice
@@ -51,8 +48,6 @@ systemd:
 
         [Install]
         WantedBy=multi-user.target
-
-
     - name: enable-cockpit-ws.service
       enabled: true
       contents: |
