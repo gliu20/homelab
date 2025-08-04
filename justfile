@@ -2,7 +2,6 @@ default: help
 
 # We expect just >= 1.39.0 for require function to work
 
-jq := require("jq")
 podman := require("podman")
 just := require("just")
 
