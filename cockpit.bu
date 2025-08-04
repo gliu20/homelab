@@ -1,6 +1,15 @@
 variant: fcos
 version: 1.6.0
 
+
+storage:
+  files:
+    - path: /etc/ssh/sshd_config.d/02-enable-passwords.conf
+      mode: 0644
+      contents:
+        inline: |
+          PasswordAuthentication yes
+
 systemd:
   units:
     # Installing layered packages with rpm-ostree following best practice
@@ -37,24 +46,6 @@ systemd:
         [Install]
         WantedBy=multi-user.target
 
-    - name: enable-ssh-password-auth.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Allow SSH password authentication
-        Wants=network-online.target
-        After=network-online.target
-        After=rpm-ostree-install-cockpit.service
-        ConditionPathExists=!/etc/ssh/sshd_config.d/02-enable-passwords.conf
-        [Service]
-        Type=oneshot
-        RemainAfterExit=yes
-        # Enable password authentication (consider security implications)
-        ExecStart=/bin/sh -c "echo 'PasswordAuthentication yes' > /etc/ssh/sshd_config.d/02-enable-passwords.conf"
-        ExecStart=/bin/systemctl try-restart sshd
-
-        [Install]
-        WantedBy=multi-user.target
 
     - name: enable-cockpit-ws.service
       enabled: true
