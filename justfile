@@ -13,7 +13,7 @@ yq_img := "ghcr.io/mikefarah/yq"
 
 build in_file="central.bu" out_file="build/central.ign":
     @echo "Transpiling {{ in_file }} to {{ out_file }}"
-    just butane "--pretty --strict --files-dir . \"{{ in_file }}\" > \"{{ out_file }}\""
+    just butane "--pretty --strict --files-dir . \"{{ in_file }}\" -o \"{{ out_file }}\""
     @echo "Done. Output written to {{ out_file }}"
 
 alias b := build
