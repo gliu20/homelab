@@ -1,16 +1,15 @@
 # homelab
 
-## Stack
+## Current Stack
 * Tailscale (Mesh VPN to expose services)
 * Fedora CoreOS as container host
 * Cockpit for management and administration
 
-## Services
+## Desired Services
 
 ### Knowledge Base
 * https://github.com/atomicdata-dev/atomic-server
 * https://github.com/toeverything/AFFiNE - https://docs.affine.pro/self-host-affine/install/docker-compose-recommend - ********
-
 
 ### Web
 Ideally would be able to archive pages for offline reading, keep list of links, maintain metadata about a link, screenshot / preview, shorten links
@@ -21,6 +20,7 @@ Ideally would be able to archive pages for offline reading, keep list of links, 
 ### Security
 * https://github.com/dani-garcia/vaultwarden - Password Manager
 * https://github.com/getsops/sops - Dev Secrets (investigate AGE, too)
+
 ### Micro-apps
 * https://github.com/Kinto/kinto/ - https://docs.kinto-storage.org/en/stable/ -JSON storage
 
@@ -32,6 +32,9 @@ Ideally would be able to archive pages for offline reading, keep list of links, 
 * Excalidraw?
 * TODO tracker?
 * https://github.com/suitenumerique/docs - Docs/basic wiki
+
+### Remote software
+* Waypipe
 
 # References
 * https://coreos.github.io/butane/getting-started/
