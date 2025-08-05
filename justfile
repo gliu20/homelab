@@ -35,7 +35,7 @@ format: just-format butane-format
 # We do not trust the images so we disallow network and most permissions
 [group("podman-tools")]
 podman_run img args:
-    @podman run --interactive --rm -v "${PWD}:/pwd" --workdir /pwd \
+    @podman run --interactive --rm -v "${PWD}:/pwd:Z" --workdir /pwd \
     --security-opt=no-new-privileges --cap-drop=all --network=none \
     "{{ img }}" {{ args }}
 
@@ -66,7 +66,8 @@ yq args: (podman_run yq_img args)
 
 [group("podman-tools")]
 yq-pretty-print in_file:
-    just yq "eval -P --inplace \"{{ in_file }}\""
+    just yq "eval -P \"{{ in_file }}\"" > "{{ in_file }}.tmp"
+    mv "{{ in_file }}.tmp" "{{ in_file }}"
 
 [group("qemu-test")]
 download_fcos: (coreos_installer "download -s stable -p qemu -f qcow2.xz --decompress -C build/")
@@ -88,10 +89,11 @@ butane-format:
     #!/usr/bin/env bash
     set -euo pipefail
     find . -type f -name "*.bu" -print0 | while IFS= read -r -d '' file; do
-        echo "Formatting $file..."
+        fullpath="$(realpath --relative-to="$PWD" "$file")"
+        echo "Formatting $fullpath..."
         # We need to pipe in /dev/null otherwise `just` will consume
         # rest of stdin, prematurely ending the loop
-        just yq-pretty-print "$file" < /dev/null
+        just yq-pretty-print "$fullpath" < /dev/null
     done
     echo "All *.bu files have been formatted."
 
