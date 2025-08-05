@@ -29,7 +29,7 @@ systemd:
         [Service]
         Type=oneshot
         RemainAfterExit=yes
-        # Install Cockpit packages with --allow-inactive to prevent failures
+        # Install packages with --allow-inactive to prevent failures
         # if packages are already included in the base image
         ExecStart=/usr/bin/rpm-ostree install -y --allow-inactive \
           cockpit-system cockpit-ostree cockpit-networkmanager \
@@ -64,8 +64,7 @@ systemd:
         RemainAfterExit=yes
         ExecStart=/usr/bin/podman container runlabel INSTALL quay.io/cockpit/ws
         ExecStart=/usr/bin/podman container runlabel --name cockpit-ws RUN quay.io/cockpit/ws
-        ExecStart=/usr/bin/systemctl enable cockpit.service
-        ExecStart=/usr/bin/systemctl start cockpit.service
+        ExecStart=/usr/bin/systemctl enable --now cockpit.service
         ExecStart=/bin/touch /var/lib/%N.stamp
 
         [Install]
