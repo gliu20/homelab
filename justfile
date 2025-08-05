@@ -25,7 +25,7 @@ serve: build
 
 dev: build
 
-mk-passwd args="--method=yescrypt": (podman_run_w_tty mkpasswd_img args)
+mkpasswd args="--method=yescrypt": (podman_run_w_tty mkpasswd_img args)
 
 alias b := build
 alias f := format
