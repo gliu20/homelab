@@ -11,6 +11,7 @@ just := require("just")
 
 butane_img := "quay.io/coreos/butane:release"
 coreos_installer_img := "quay.io/coreos/coreos-installer:release"
+mkpasswd_img := "quay.io/coreos/mkpasswd:latest"
 sops_img := "quay.io/getsops/sops:v3.10.2"
 yq_img := "ghcr.io/mikefarah/yq:latest"
 
@@ -23,6 +24,8 @@ serve: build
     python -m http.server -d build 8000
 
 dev: build
+
+mk-passwd args="--method=yescrypt": (podman_run_w_tty mkpasswd_img args)
 
 alias b := build
 alias f := format
@@ -41,6 +44,12 @@ podman_run_w_network img args:
     @podman run --interactive --rm -v "${PWD}:/pwd" --workdir /pwd \
     --security-opt=no-new-privileges --cap-drop=all \
     --network slirp4netns:enable_ipv6=false,allow_host_loopback=true \
+    "{{ img }}" {{ args }}
+
+[group("podman-tools")]
+podman_run_w_tty img args:
+    @podman run --interactive --tty --rm -v "${PWD}:/pwd" --workdir /pwd \
+    --security-opt=no-new-privileges --cap-drop=all --network=none \
     "{{ img }}" {{ args }}
 
 [group("podman-tools")]
@@ -72,7 +81,8 @@ deploy_fcos_qemu:
 
     qemu-kvm -m 2048 -cpu host -nographic -snapshot \
     -drive "if=virtio,file=${IMAGE}" ${IGNITION_DEVICE_ARG} \
-    -nic user,model=virtio,hostfwd=tcp::2222-:22 
+    -nic user,model=virtio,hostfwd=tcp::2222-:22
+
 [group("format")]
 butane-format:
     #!/usr/bin/env bash
