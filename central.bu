@@ -3,9 +3,9 @@ version: 1.6.0
 ignition:
   config:
     merge:
-      - local: services/cockpit/cockpit.bu
-      - local: services/tailscale/tailscale.bu
-      #- local: services/kinto/kinto.bu
+      - local: build/services/cockpit/cockpit.ign
+      - local: build/services/tailscale/tailscale.ign
+      #- local: build/services/kinto/kinto.ign
 storage:
   files:
     - path: /etc/hostname

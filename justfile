@@ -15,7 +15,24 @@ mkpasswd_img := "quay.io/coreos/mkpasswd:latest"
 sops_img := "quay.io/getsops/sops:v3.10.2"
 yq_img := "ghcr.io/mikefarah/yq:latest"
 
-build in_file="central.bu" out_file="build/central.ign":
+build:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    find . -type f -name "*.bu" -print0 | while IFS= read -r -d '' file; do
+        fullpath="$(realpath --relative-to="$PWD" "$file")"
+        output_path="$(dirname "build/$fullpath")"
+        filename="$(basename "$fullpath")"
+        filename_no_ext="${filename%.*}"
+
+        mkdir -p "$output_path"
+        # We need to pipe in /dev/null otherwise `just` will consume
+        # rest of stdin, prematurely ending the loop
+        just transpile_ign "$fullpath" "$output_path/$filename_no_ext.ign" < /dev/null
+    done
+    echo "All *.bu files have been transpiled."
+
+
+transpile_ign in_file="central.bu" out_file="build/central.ign":
     @echo "Transpiling {{ in_file }} to {{ out_file }}"
     just butane "--pretty --strict --files-dir . \"{{ in_file }}\" -o \"{{ out_file }}\""
     @echo "Done. Output written to {{ out_file }}"
@@ -101,3 +118,10 @@ butane-format:
 just-format:
     just --fmt --unstable
     @echo "Done. Formatted justfile."
+
+
+clean:
+    #!/usr/bin/env bash
+    set -euox pipefail
+    find build/ -type f -name "*.ign" -delete
+    find build/ -type d -empty -delete
