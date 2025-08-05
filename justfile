@@ -75,11 +75,11 @@ download_fcos: (coreos_installer "download -s stable -p qemu -f qcow2.xz --decom
 [group("qemu-test")]
 deploy_fcos_qemu:
     #!/usr/bin/env bash
-    IGNITION_CONFIG="build/central.ign"
+    IGNITION_CONFIG=$(realpath "build/central.ign")
     IMAGE="build/fedora-coreos-42.20250705.3.0-qemu.x86_64.qcow2"
     # for x86/aarch64:
     IGNITION_DEVICE_ARG="-fw_cfg name=opt/com.coreos/config,file=${IGNITION_CONFIG}"
-
+    echo "To quit, press Ctrl+A then hit x"
     qemu-kvm -m 2048 -cpu host -nographic -snapshot \
     -drive "if=virtio,file=${IMAGE}" ${IGNITION_DEVICE_ARG} \
     -nic user,model=virtio,hostfwd=tcp::2222-:22
