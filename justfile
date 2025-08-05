@@ -41,14 +41,14 @@ podman_run img args:
 
 [group("podman-tools")]
 podman_run_w_network img args:
-    @podman run --interactive --rm -v "${PWD}:/pwd" --workdir /pwd \
+    @podman run --interactive --rm -v "${PWD}:/pwd:Z" --workdir /pwd \
     --security-opt=no-new-privileges --cap-drop=all \
     --network slirp4netns:enable_ipv6=false,allow_host_loopback=true \
     "{{ img }}" {{ args }}
 
 [group("podman-tools")]
 podman_run_w_tty img args:
-    @podman run --interactive --tty --rm -v "${PWD}:/pwd" --workdir /pwd \
+    @podman run --interactive --tty --rm -v "${PWD}:/pwd:Z" --workdir /pwd \
     --security-opt=no-new-privileges --cap-drop=all --network=none \
     "{{ img }}" {{ args }}
 
