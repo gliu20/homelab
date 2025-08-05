@@ -99,7 +99,7 @@ deploy_fcos_qemu:
     echo "To quit, press Ctrl+A then hit x"
     qemu-kvm -m 2048 -cpu host -nographic -snapshot \
     -drive "if=virtio,file=${IMAGE}" ${IGNITION_DEVICE_ARG} \
-    -nic user,model=virtio,hostfwd=tcp::2222-:22
+    -nic user,model=virtio,hostfwd=tcp::2222-:22,hostfwd=tcp::9091-:9090
 
 [group("format")]
 butane-format:
