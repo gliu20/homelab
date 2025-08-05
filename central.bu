@@ -4,6 +4,7 @@ ignition:
   config: 
     merge:
       - local: services/cockpit/cockpit.bu
+      - local: services/tailscale/tailscale.bu
 passwd:
   users:
     - name: user
