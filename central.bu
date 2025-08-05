@@ -1,14 +1,11 @@
 variant: fcos
 version: 1.6.0
 ignition:
-  config: 
+  config:
     merge:
       - local: services/cockpit/cockpit.bu
       - local: services/tailscale/tailscale.bu
 passwd:
   users:
-    - name: user
+    - name: core
       password_hash: TODO_ENTER_HASH
-      groups:
-        - wheel
-      shell: /bin/bash
