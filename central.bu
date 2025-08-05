@@ -5,7 +5,7 @@ ignition:
     merge:
       - local: services/cockpit/cockpit.bu
       - local: services/tailscale/tailscale.bu
-      - local: services/kinto/kinto.bu
+      #- local: services/kinto/kinto.bu
 storage:
   files:
     - path: /etc/hostname
