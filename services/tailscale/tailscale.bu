@@ -1,3 +1,62 @@
 variant: fcos
 version: 1.6.0
+# Per https://github.com/tailscale/tailscale/issues/7409
+# there is no official way to install tailscale on atomic platforms
+# so we create the repo manually and layer it ourselves
+storage:
+  files:
+    - path: /etc/yum.repos.d/tailscale.repo
+      mode: 0644
+      contents:
+        local: services/tailscale/tailscale.repo
+systemd:
+  units:
+    # Installing layered packages with rpm-ostree following best practice
+    # in docs: https://docs.fedoraproject.org/en-US/fedora-coreos/os-extensions/
+    - name: rpm-ostree-install-tailscale.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Layer Tailscale with rpm-ostree
+        Wants=network-online.target
+        After=network-online.target
+        # We run before `zincati.service` to avoid conflicting rpm-ostree
+        # transactions.
+        Before=zincati.service
+        ConditionPathExists=!/var/lib/%N.stamp
 
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        # Install packages with --allow-inactive to prevent failures
+        # if packages are already included in the base image
+        ExecStart=/usr/bin/rpm-ostree install -y --allow-inactive tailscale
+        ExecStart=/bin/touch /var/lib/%N.stamp
+        # A reboot-less approach is not reliable with apply-live as
+        # it can fail if the packages already exist. Hence, forcing a
+        # reboot whenever there is a pending deployment
+        ExecStart=/usr/bin/rpm-ostree status --pending-exit-77 && \
+          /bin/systemctl --no-block reboot
+
+        [Install]
+        WantedBy=multi-user.target
+    # TODO: make sure to add tailscale up
+    - name: enable-tailscale.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Set up Tailscale service
+        Wants=network-online.target
+        After=network-online.target
+        # Ensure tailscale is installed
+        After=rpm-ostree-install-tailscale.service
+        ConditionPathExists=!/var/lib/%N.stamp
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/usr/bin/systemctl enable --now tailscaled
+        ExecStart=/bin/touch /var/lib/%N.stamp
+
+        [Install]
+        WantedBy=multi-user.target
