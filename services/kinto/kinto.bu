@@ -1,3 +1,10 @@
 variant: fcos
 version: 1.6.0
 
+storage:
+  files:
+    # Using rootless unit search path
+    - path: /etc/containers/systemd/users/kinto.container
+      mode: 0644
+      contents:
+        local: services/kinto/kinto.container
