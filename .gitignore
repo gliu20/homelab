@@ -1,2 +1,3 @@
-*.ign
 *.env
+build/*.ign
+build/*.qcow2
