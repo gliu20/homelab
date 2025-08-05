@@ -1,6 +1,5 @@
 variant: fcos
 version: 1.6.0
-
 storage:
   files:
     # Using rootless unit search path
