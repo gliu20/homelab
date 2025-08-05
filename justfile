@@ -1,8 +1,10 @@
-default: help
+help:
+    @just --list
 
 # We expect just >= 1.39.0 for require function to work
 
 podman := require("podman")
+python := require("python")
 just := require("just")
 
 # Container images
@@ -15,6 +17,9 @@ build in_file="central.bu" out_file="build/central.ign":
     @echo "Transpiling {{ in_file }} to {{ out_file }}"
     just butane "--pretty --strict --files-dir . \"{{ in_file }}\" -o \"{{ out_file }}\""
     @echo "Done. Output written to {{ out_file }}"
+
+serve:
+    python -m http.server -d build 8000
 
 alias b := build
 alias f := format
@@ -57,6 +62,3 @@ butane-format:
 just-format:
     just --fmt --unstable
     @echo "Done. Formatted justfile."
-
-help:
-    @just --list
