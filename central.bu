@@ -6,6 +6,12 @@ ignition:
       - local: services/cockpit/cockpit.bu
       - local: services/tailscale/tailscale.bu
       - local: services/kinto/kinto.bu
+storage:
+  files:
+    - path: /etc/hostname
+      mode: 0644
+      contents:
+        inline: homelab.local
 passwd:
   users:
     - name: core
