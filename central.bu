@@ -5,13 +5,25 @@ ignition:
     merge:
       - local: build/services/cockpit/cockpit.ign
       - local: build/services/tailscale/tailscale.ign
-      #- local: build/services/kinto/kinto.ign
+      - local: build/services/kinto/kinto.ign
 storage:
   files:
     - path: /etc/hostname
       mode: 0644
       contents:
         inline: homelab.local
+    - path: /etc/systemd/zram-generator.conf
+      mode: 0644
+      contents:
+        inline: |
+          # This config file enables a /dev/zram0 device with the default settings:
+          # — size — same as available RAM or 8GB, whichever is less
+          # — compression — most likely lzo-rle
+          #
+          # To disable, uninstall zram-generator-defaults or create empty
+          # /etc/systemd/zram-generator.conf file.
+          [zram0]
+          zram-size = min(ram, 8192)
 passwd:
   users:
     - name: core
