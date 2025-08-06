@@ -29,10 +29,11 @@ storage:
         inline: |
           [updates]
           strategy = "periodic"
-          
+          [updates.periodic]
+          time_zone = "America/Toronto"
           [[updates.periodic.window]]
           days = [ "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" ]
-          start_time = "07:00"
+          start_time = "03:00"
           length_minutes = 60
 passwd:
   users:
