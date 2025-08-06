@@ -24,6 +24,16 @@ storage:
           # /etc/systemd/zram-generator.conf file.
           [zram0]
           zram-size = min(ram, 8192)
+    - path: /etc/zincati/config.d/55-updates-strategy.toml
+      contents:
+        inline: |
+          [updates]
+          strategy = "periodic"
+          
+          [[updates.periodic.window]]
+          days = [ "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" ]
+          start_time = "07:00"
+          length_minutes = 60
 passwd:
   users:
     - name: core
