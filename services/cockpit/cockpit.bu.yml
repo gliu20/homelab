@@ -28,8 +28,10 @@ storage:
           Image=quay.io/cockpit/ws:latest
           # Use host network to avoid port mapping complexity
           Network=host
-          # Environment can be customized; default listens on 9090
-          # Environment=COCKPIT_PORT=9090
+          # Avoid SELinux denials on host sockets and system mounts
+          Label=disable
+          # Keep host UID/GID mapping straightforward
+          UserNS=keep-id
 
           # Allow managing the host:
           # - systemd/journal via D-Bus and journal sockets
@@ -37,11 +39,9 @@ storage:
           # - Podman management via podman socket
           # - Network management via NetworkManager D-Bus
           Volume=/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
-          Volume=/var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
           Volume=/run/systemd/journal:/run/systemd/journal
           Volume=/etc/machine-id:/etc/machine-id:ro
           Volume=/run/podman/podman.sock:/run/podman/podman.sock
-          Volume=/var/run/podman/podman.sock:/var/run/podman/podman.sock
           Volume=/run/udev:/run/udev:ro
           Volume=/sys/fs/cgroup:/sys/fs/cgroup:ro
           Volume=/etc/localtime:/etc/localtime:ro
@@ -60,9 +60,6 @@ storage:
           AddCapability=SYS_TIME
           # Allow reading host devices for storage views
           Device=/dev
-          # SELinux: label shared volumes appropriately (Z relabel at mount point not supported in Quadlet)
-          # If SELinux blocks, consider setting Label=disable to run unconfined:
-          # Label=disable
 
           # Keep container running and auto-restart
           Restart=always
@@ -73,6 +70,7 @@ storage:
           Pull=true
           # Graceful stop
           TimeoutStopSec=30s
+          KillMode=process
 
 systemd:
   units:
