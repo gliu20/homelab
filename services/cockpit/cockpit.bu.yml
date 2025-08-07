@@ -25,8 +25,8 @@ storage:
           Image=quay.io/cockpit/ws:latest
           # Use host network to avoid port mapping complexity
           Network=host
-          # Avoid SELinux denials on host sockets and system mounts
-          Label=disable
+          # Disable SELinux confinement for this container
+          SecurityLabelDisable=true
           # Keep host UID/GID mapping straightforward
           UserNS=keep-id
 
