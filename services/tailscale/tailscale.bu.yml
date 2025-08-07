@@ -54,7 +54,6 @@ storage:
           Network=host
           AddCapability=NET_ADMIN NET_RAW
           AddDevice=/dev/net/tun
-
           SecurityLabelDisable=true
           LogDriver=journald
 
@@ -68,8 +67,10 @@ storage:
           Environment=TS_STATE_DIR=/var/lib/tailscale
           Environment=TS_SOCKET_DIR=/var/run/tailscale
           Environment=TS_AUTHENTICATE_TO_BROWSER=true
-          # Logging to journald for easier debugging
-          LogDriver=journald
+
+          # Command to run inside the container (replaces ExecStart in Service section)
+          Exec=/usr/bin/tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock
+
           # Keep the container up and auto-update when image updates are available
           AutoUpdate=registry
 
@@ -78,9 +79,6 @@ storage:
           RestartSec=5
           TimeoutStartSec=300
           TimeoutStopSec=30
-
-          # Custom startup command
-          ExecStart=/usr/bin/tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock
 
           # Pre-start hooks
           ExecStartPre=/bin/mkdir -p /var/lib/tailscale /var/run/tailscale
