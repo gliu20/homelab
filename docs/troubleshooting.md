@@ -61,6 +61,12 @@ Password login not working:
   - Add to [Container]: SecurityLabelDisable=true
 - For better logs:
   - Add to [Container]: LogDriver=journald
+- Error: statfs /run/podman/podman.sock: no such file or directory
+  - Either enable the host socket:
+    - sudo systemctl enable --now podman.socket
+    - Verify: ls -l /run/podman/podman.sock
+    - Then add to Quadlet: Volume=/run/podman/podman.sock:/run/podman/podman.sock
+  - Or remove the socket mount from Quadlet (default in this repo).
 
 6) Network and port checks
 - Since Network=host is used, service should be on https://<host>:9090
@@ -70,7 +76,7 @@ Password login not working:
 
 7) DBus and system access mounts
 - Verify host sockets available in container:
-  - sudo podman exec systemd-cockpit ls -l /run/dbus/system_bus_socket /run/podman/podman.sock /run/systemd/journal || true
+  - sudo podman exec systemd-cockpit ls -l /run/dbus/system_bus_socket /run/systemd/journal || true
 
 8) Regenerate after config changes
 - After changing the Quadlet, run:

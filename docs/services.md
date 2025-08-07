@@ -29,6 +29,15 @@ Cockpit implementation details:
 - The Quadlet includes [Install] WantedBy=multi-user.target, and the generator applies it (like systemctl enable) so the service becomes enabled automatically; no manual unit file is shipped.
 - Access is via https://<host>:9090 (host networking).
 
+Optional Podman socket:
+- Cockpit can manage local Podman if /run/podman/podman.sock is available. The Quadlet does not mount it by default to avoid hard failure on hosts without the socket.
+- To enable Podman management in Cockpit, enable the socket on the host:
+  - sudo systemctl enable --now podman.socket
+  - Verify exists: ls -l /run/podman/podman.sock
+  - Then add this mount to the Quadlet and reload:
+    - Volume=/run/podman/podman.sock:/run/podman/podman.sock
+- If the socket is absent and mounted, Podman exits with status=125.
+
 Verify Cockpit:
 - sudo systemctl daemon-reload
 - sudo systemctl list-unit-files | grep -E '^cockpit\.service'
