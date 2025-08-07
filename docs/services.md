@@ -22,3 +22,9 @@ Build output layout:
 Notes:
 - Service enablement is controlled by presence of the per-service *.bu.yml and reference in central.bu.yml.
 - Adjust container images and environment inside the service directories as needed.
+
+Cockpit implementation details:
+- Cockpit runs via Podman Quadlet defined at /etc/containers/systemd/cockpit.container.
+- systemd generates cockpit.service from that file at boot.
+- The Quadlet includes [Install] WantedBy=multi-user.target so the service is enabled automatically; no manual systemd unit is shipped.
+- Access is via https://<host>:9090 (host networking).

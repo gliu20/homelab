@@ -72,18 +72,8 @@ storage:
           TimeoutStopSec=30s
           KillMode=process
 
-systemd:
-  units:
-    # Quadlet will synthesize cockpit.service from cockpit.container.
-    # We still add an explicit enable/start to ensure it is active on boot.
-    - name: cockpit.service
-      enabled: true
-      dropins:
-        - name: dependencies.conf
-          contents: |
-            [Unit]
-            Wants=network-online.target
-            After=network-online.target
-            # If you prefer to delay until podman is ready
-            Wants=podman.service
-            After=podman.service
+          [Install]
+          WantedBy=multi-user.target
+
+# No explicit systemd.units here: Quadlet will synthesize cockpit.service
+# from cockpit.container and enable it via the [Install] section above.
