@@ -43,15 +43,16 @@ storage:
 
           [Service]
           # Pull image explicitly before starting, so TimeoutStartSec applies clearly
-          ExecStartPre=/usr/bin/podman pull quay.io/cockpit/ws:latest
+          ExecStartPre=/bin/sh -c '/usr/bin/podman pull --retry=5 --retry-delay=15s quay.io/cockpit/ws:latest'
           # Ensure we pull the newest image when starting
           Pull=true
           # Increase start timeout for slow pulls/starts
-          TimeoutStartSec=3600
+          TimeoutStartSec=3600s
           # Keep container running and auto-restart
           Restart=always
-          # Avoid "start request repeated too quickly" during retries
+          # Disable start rate limiting to avoid "start request repeated too quickly"
           StartLimitIntervalSec=0
+          StartLimitBurst=0
           # Graceful stop
           TimeoutStopSec=30s
           # Helpful env for tooling and logs
