@@ -1,10 +1,8 @@
 variant: fcos
 version: 1.6.0
-
 # Cockpit via Podman Quadlet
 # This runs the official cockpit/ws container with access to host system APIs
 # so it can manage the host (systemd, journal, network, podman, etc).
-
 storage:
   files:
     # Ensure password auth is allowed for Cockpit login (optional if using other auth)
@@ -13,7 +11,6 @@ storage:
       contents:
         inline: |
           PasswordAuthentication yes
-
     # Podman Quadlet: define the Cockpit container
     - path: /etc/containers/systemd/cockpit.container
       mode: 0644
@@ -74,6 +71,5 @@ storage:
 
           [Install]
           WantedBy=multi-user.target
-
 # No explicit systemd.units here: Quadlet will synthesize cockpit.service
 # from cockpit.container and enable it via the [Install] section above.
