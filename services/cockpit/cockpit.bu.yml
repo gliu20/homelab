@@ -16,20 +16,24 @@ storage:
       contents:
         inline: |
           [Unit]
-          Description=Cockpit Web Service Container
-          Documentation=man:cockpit-ws(8)
+          Description=Cockpit Web Console (container)
           After=network-online.target
           Wants=network-online.target
 
           [Container]
-          Image=cockpit/ws
+          Image=quay.io/cockpit/ws:latest
           ContainerName=cockpit
-          PublishPort=9090:9090
-          Volume=/:/host:ro
-          Environment=COCKPIT_REMOTE_PEER=1
-          Privileged=true
+          PodmanArgs=--privileged
+          Network=host
           SecurityLabelDisable=true
-          Pull=always
+          LogDriver=journald
+
+          # Essential host integration mounts
+          Volume=/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
+          Volume=/run/systemd/journal:/run/systemd/journal
+          Volume=/run/udev:/run/udev:ro
+
+          AutoUpdate=registry
 
           [Service]
           Restart=always
