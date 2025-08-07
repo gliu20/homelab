@@ -3,3 +3,4 @@ build/*.ign
 build/*/*.ign
 build/*/*/*.ign
 build/*.qcow2
+.aider*
