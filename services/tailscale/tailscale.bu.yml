@@ -1,6 +1,5 @@
 variant: fcos
 version: 1.6.0
-
 # Tailscale via Podman Quadlet
 # Runs tailscaled in a container with host networking and required privileges
 # to manage the host network stack via /dev/net/tun.
@@ -10,30 +9,30 @@ version: 1.6.0
 # Environment file: /etc/tailscale/tailscale.env
 # First boot: If TS_AUTHKEY is provided, the node will auto-register.
 # Otherwise, run: sudo podman exec tailscaled tailscale up
-
 storage:
   directories:
-    - path: /var/lib/tailscale  # Persistent state for Tailscale
+    - path: /var/lib/tailscale # Persistent state for Tailscale
       mode: 0755
       user:
         id: 1000
       group:
         id: 1000
-    - path: /var/run/tailscale  # Runtime directory (volatile)
+    - path: /var/run/tailscale # Runtime directory (volatile)
       mode: 0755
       user:
         id: 1000
       group:
         id: 1000
-    - path: /etc/tailscale      # Configuration directory
+    - path: /etc/tailscale # Configuration directory
       mode: 0755
-
   files:
     - path: /etc/modules-load.d/tun.conf
       overwrite: true
       contents:
         inline: tun
 
+    # Provide a default env file so Quadlet EnvironmentFile= doesn't fail if the user hasn't created one yet.
+    # Safe defaults: empty TS_EXTRA_ARGS, TS_STATE_DIR, and a commented TS_AUTHKEY line.
     - path: /etc/tailscale/tailscale.env
       mode: 0640
       contents:
@@ -54,11 +53,10 @@ storage:
           #
           # Authenticate to browser (optional)
           TS_AUTHENTICATE_TO_BROWSER=true
-
     - path: /etc/containers/systemd/tailscale.container
       mode: 0644
       contents:
-        inline: |
+        inline: |-
           [Unit]
           Description=Tailscale (container)
           Wants=network-online.target
