@@ -18,21 +18,21 @@ yq_img := "ghcr.io/mikefarah/yq:latest"
 build:
     #!/usr/bin/env bash
     set -euo pipefail
-    find . -type f -name "*.bu" -print0 | while IFS= read -r -d '' file; do
+    find . -type f -name "*.bu.yml" -print0 | while IFS= read -r -d '' file; do
         fullpath="$(realpath --relative-to="$PWD" "$file")"
         output_path="$(dirname "build/$fullpath")"
         filename="$(basename "$fullpath")"
         filename_no_ext="${filename%.*}"
+        filename_no_sub_ext="${filename_no_ext%.*}"
 
         mkdir -p "$output_path"
         # We need to pipe in /dev/null otherwise `just` will consume
         # rest of stdin, prematurely ending the loop
-        just transpile_ign "$fullpath" "$output_path/$filename_no_ext.ign" < /dev/null
+        just transpile_ign "$fullpath" "$output_path/$filename_no_sub_ext.ign" < /dev/null
     done
-    echo "All *.bu files have been transpiled."
+    echo "All *.bu.yml files have been transpiled."
 
-
-transpile_ign in_file="central.bu" out_file="build/central.ign":
+transpile_ign in_file="central.bu.yml" out_file="build/central.ign":
     @echo "Transpiling {{ in_file }} to {{ out_file }}"
     just butane "--pretty --strict --files-dir . \"{{ in_file }}\" -o \"{{ out_file }}\""
     @echo "Done. Output written to {{ out_file }}"
@@ -105,20 +105,19 @@ deploy_fcos_qemu:
 butane-format:
     #!/usr/bin/env bash
     set -euo pipefail
-    find . -type f -name "*.bu" -print0 | while IFS= read -r -d '' file; do
+    find . -type f -name "*.bu.yml" -print0 | while IFS= read -r -d '' file; do
         fullpath="$(realpath --relative-to="$PWD" "$file")"
         echo "Formatting $fullpath..."
         # We need to pipe in /dev/null otherwise `just` will consume
         # rest of stdin, prematurely ending the loop
         just yq-pretty-print "$fullpath" < /dev/null
     done
-    echo "All *.bu files have been formatted."
+    echo "All *.bu.yml files have been formatted."
 
 [group("format")]
 just-format:
     just --fmt --unstable
     @echo "Done. Formatted justfile."
-
 
 clean:
     #!/usr/bin/env bash
