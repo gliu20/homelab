@@ -45,7 +45,7 @@ storage:
           # Ensure we pull the newest image when starting
           Pull=true
           # Extend startup timeout to allow image pulls
-          TimeoutStartSec=900
+          TimeoutStartSec=3600s
           # Keep container running and auto-restart
           Restart=always
           # Graceful stop
