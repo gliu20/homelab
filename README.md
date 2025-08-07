@@ -30,29 +30,31 @@ graph TD
 ## Service Catalog
 
 ### Knowledge Management
-- Planned:
-  - [Atomic Server](https://github.com/atomicdata-dev/atomic-server) - Linked Data knowledge base
-  - [AFFiNE](https://github.com/toeverything/AFFiNE) - All-in-one workspace (Docker deployment)
+- [Atomic Server](https://github.com/atomicdata-dev/atomic-server)
+- [AFFiNE](https://github.com/toeverything/AFFiNE) - [Docker Compose docs](https://docs.affine.pro/self-host-affine/install/docker-compose-recommend) - ********
 
 ### Web & Bookmarks
-- Candidates:
-  - Shiori - Simple bookmark manager
-  - Grimoire - Knowledge organizer
-  - Servas - Link sharing platform
+- Ideally would be able to archive pages for offline reading, keep list of links, maintain metadata about a link, screenshot/preview, shorten links
+- [Shiori](https://github.com/go-shiori/shiori) - Bookmarks
+- [Grimoire](https://github.com/goniszewski/grimoire) - Bookmarks
+- [Servas](https://github.com/beromir/Servas) - Bookmarks
 
-### Development Ecosystem
-- Source Control:
-  - Gitea/Forgejo - Lightweight code hosting
-- Development Tools:
-  - Kinto - JSON storage service
-  - Excalidraw - Collaborative diagramming
+### Security
+- [Vaultwarden](https://github.com/dani-garcia/vaultwarden) - Password Manager
+- [SOPS](https://github.com/getsops/sops) - Dev Secrets (investigate AGE, too)
+
+### Micro-apps
+- [Kinto](https://github.com/Kinto/kinto/) - [Storage docs](https://docs.kinto-storage.org/en/stable/) - JSON storage
+
+### DX
+- [Gitea](https://github.com/go-gitea/gitea)
+- [Forgejo](https://codeberg.org/forgejo/forgejo)
 
 ### Productivity
-- Documentation:
-  - Markdown wiki (Basic docs)
-  - Task tracking solution (TBD)
-- Remote Access:
-  - Waypipe - Latency-tolerant Wayland proxy
+- Excalidraw?
+- TODO tracker?
+- [Basic docs wiki](https://github.com/suitenumerique/docs)
+- [Waypipe](https://gitlab.freedesktop.org/mstoeckl/waypipe) - Remote software
 
 ## Repository Structure
 
