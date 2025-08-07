@@ -1,47 +1,109 @@
-# homelab
+# Homelab Infrastructure as Code
 
-## Current Stack
-* Tailscale (Mesh VPN to expose services)
-* Fedora CoreOS as container host
-* Cockpit for management and administration
+A declarative Fedora CoreOS homelab configuration managed with Butane and Podman.
 
-## Desired Services
+## Architecture Overview
 
-### Knowledge Base
-* https://github.com/atomicdata-dev/atomic-server
-* https://github.com/toeverything/AFFiNE - https://docs.affine.pro/self-host-affine/install/docker-compose-recommend - ********
+```mermaid
+graph TD
+    FCOS[Fedora CoreOS] --> Butane
+    Butane --> Ignition
+    Ignition -->|Provision| Podman_Containers
+    Podman_Containers -->|Systemd Units| CoreOS
+    Cockpit -->|Management| CoreOS
+    Tailscale -->|Secure Networking| All_Services
+```
 
-### Web
-Ideally would be able to archive pages for offline reading, keep list of links, maintain metadata about a link, screenshot / preview, shorten links
-* https://github.com/go-shiori/shiori - Bookmarks
-* https://github.com/goniszewski/grimoire - Bookmarks
-* https://github.com/beromir/Servas - Bookmarks
+## Core Components
 
-### Security
-* https://github.com/dani-garcia/vaultwarden - Password Manager
-* https://github.com/getsops/sops - Dev Secrets (investigate AGE, too)
+### Infrastructure Foundation
+- 🐧 Fedora CoreOS (Immutable OS with automated updates)
+- 🔥 Butane configurations for declarative provisioning
+- 🐳 Podman containers with systemd integration
+- ✈️ Cockpit web console for management
 
-### Micro-apps
-* https://github.com/Kinto/kinto/ - https://docs.kinto-storage.org/en/stable/ -JSON storage
+### Networking & Security
+- 🔒 Tailscale mesh VPN for secure service exposure
+- 🛡️ Vaultwarden (Bitwarden-compatible password manager)
+- 🔑 SOPS + Age for secrets management
 
-### DX
-* https://github.com/go-gitea/gitea - Gitea
-* https://codeberg.org/forgejo/forgejo
+## Service Catalog
+
+### Knowledge Management
+- Planned:
+  - [Atomic Server](https://github.com/atomicdata-dev/atomic-server) - Linked Data knowledge base
+  - [AFFiNE](https://github.com/toeverything/AFFiNE) - All-in-one workspace (Docker deployment)
+
+### Web & Bookmarks
+- Candidates:
+  - Shiori - Simple bookmark manager
+  - Grimoire - Knowledge organizer
+  - Servas - Link sharing platform
+
+### Development Ecosystem
+- Source Control:
+  - Gitea/Forgejo - Lightweight code hosting
+- Development Tools:
+  - Kinto - JSON storage service
+  - Excalidraw - Collaborative diagramming
 
 ### Productivity
-* Excalidraw?
-* TODO tracker?
-* https://github.com/suitenumerique/docs - Docs/basic wiki
+- Documentation:
+  - Markdown wiki (Basic docs)
+  - Task tracking solution (TBD)
+- Remote Access:
+  - Waypipe - Latency-tolerant Wayland proxy
 
-### Remote software
-* Waypipe
+## Repository Structure
 
-# References
-* https://coreos.github.io/butane/getting-started/
-* https://cockpit-project.org/running.html#coreos
-* https://coreos.github.io/butane/config-fcos-v1_6/
-* https://docs.fedoraproject.org/en-US/fedora-coreos/os-extensions/
-* https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html
-* https://chrisliebaer.de/blog/gitea-actions/
-* https://just.systems/man/en/
-* https://github.com/FiloSottile/age/issues/578
+```
+homelab/
+├── central.bu.yml          # Base system configuration
+├── justfile                # Task runner commands
+├── services/               # Service-specific configurations
+│   ├── cockpit/            # Management console
+│   ├── kinto/              # JSON storage service
+│   └── tailscale/          # VPN configuration
+└── README.md               # This documentation
+```
+
+## Getting Started
+
+### Prerequisites
+1. Fedora CoreOS host
+2. Butane compiler (`butane` command)
+3. Tailscale network configured
+
+### Deployment Example
+```bash
+# Generate Ignition config
+butane --pretty --strict central.bu.yml > ignition.json
+
+# Apply to CoreOS
+fcct -input ./central.bu.yml -output ./ignition.json
+```
+
+### Management
+```bash
+# Use Just commands for common tasks
+just validate-configs  # Validate Butane configs
+just list-services     # Show managed services
+```
+
+## Operational Excellence
+- **Immutable Infrastructure**: CoreOS + Declarative Butane configs
+- **GitOps Approach**: All changes through repository
+- **Backup Strategy**: (TODO: Add backup plan)
+- **Monitoring**: (TODO: Add monitoring solution)
+
+## References
+
+### Core Technologies
+- [Butane Documentation](https://coreos.github.io/butane/)
+- [Fedora CoreOS Docs](https://docs.fedoraproject.org/en-US/fedora-coreos/)
+- [Podman Systemd Integration](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
+
+### Additional Resources
+- [Cockpit Project](https://cockpit-project.org/)
+- [Tailscale in CoreOS](https://tailscale.com/kb/1132/coreos/)
+- [SOPS with Age](https://github.com/FiloSottile/age)
