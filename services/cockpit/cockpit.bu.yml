@@ -1,8 +1,7 @@
 variant: fcos
 version: 1.6.0
 # Cockpit via Podman Quadlet
-# This runs the official cockpit/ws container with access to host system APIs
-# so it can manage the host (systemd, journal, network, podman, etc).
+# This runs the official cockpit/ws container using the image's RUN label semantics (privileged).
 storage:
   files:
     # Ensure password auth is allowed for Cockpit login (optional if using other auth)
@@ -23,25 +22,12 @@ storage:
 
           [Container]
           Image=quay.io/cockpit/ws:latest
-          # Use host network to avoid port mapping complexity
+          # Match image RUN label intent: run privileged
+          PodmanArgs=--privileged
+          # Use host network
           Network=host
 
-          # Privileged-like settings (approximate podman --privileged)
-          # Run as root inside the container
-          User=0
-          # Disable SELinux confinement
-          SecurityLabelDisable=true
-          # Give the container all capabilities
-          AddCapability=ALL
-          # Unmask all default masked paths
-          Unmask=ALL
-          # Minimal init inside container to handle signals/reaping
-          RunInit=true
-
-          # Log to journal for easier debugging
-          LogDriver=journald
-
-          # Allow managing the host via sockets and metadata
+          # Host integration mounts
           Volume=/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
           Volume=/run/systemd/journal:/run/systemd/journal
           Volume=/etc/machine-id:/etc/machine-id:ro
@@ -50,7 +36,6 @@ storage:
           Volume=/sys/fs/cgroup:/sys/fs/cgroup:ro
           Volume=/etc/localtime:/etc/localtime:ro
           Volume=/etc/hostname:/etc/hostname:ro
-          # NetworkManager D-Bus (if managing networking)
           Volume=/run/NetworkManager:/run/NetworkManager:ro
 
           # Auto-update image from registry when available
@@ -59,6 +44,8 @@ storage:
           [Service]
           # Ensure we pull the newest image when starting
           Pull=true
+          # Extend startup timeout to allow image pulls
+          TimeoutStartSec=900
           # Keep container running and auto-restart
           Restart=always
           # Graceful stop
@@ -66,5 +53,4 @@ storage:
 
           [Install]
           WantedBy=multi-user.target
-# No explicit systemd.units here: Quadlet will synthesize cockpit.service
-# from cockpit.container and enable it via the [Install] section above.
+# Quadlet will synthesize cockpit.service from cockpit.container and apply [Install].
