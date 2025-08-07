@@ -34,13 +34,15 @@ Password login not working:
 - sudo ls -l /etc/containers/systemd/cockpit.container
 - sudo cat /etc/containers/systemd/cockpit.container
 
-2) Ensure systemd has generated the unit from Quadlet
+2) Ensure systemd has generated the unit from Quadlet (generator runs automatically)
 - sudo systemctl daemon-reload
+- sudo systemd-analyze --generators
 - sudo systemctl list-unit-files | grep -E '^cockpit\.service'
   - Expected: cockpit.service enabled
-- If not present, check generator output:
-  - sudo systemctl cat cockpit.service
-  - sudo journalctl -b -u podman-quadlet@cockpit.service -u podman-quadlet
+- If not present, inspect generator directly:
+  - /usr/lib/systemd/system-generators/podman-system-generator --dryrun
+  - sudo systemctl cat cockpit.service || true
+  - sudo journalctl -b -u cockpit.service -u systemd -g podman
 
 3) Enable and start (if not already)
 - sudo systemctl enable --now cockpit.service
@@ -75,6 +77,6 @@ Password login not working:
   - sudo systemctl restart cockpit.service
 
 Common issues:
-- cockpit.service not found: Systemd hasn’t generated/enabled Quadlet yet. Ensure the file exists under /etc/containers/systemd/, run daemon-reload, and enable.
+- cockpit.service not found: The systemd generator (podman-system-generator) didn’t see the file. Ensure /etc/containers/systemd/cockpit.container exists, then run daemon-reload; check systemd-analyze --generators and the generator --dryrun output.
 - Image pull failures: Check network and run sudo podman pull quay.io/cockpit/ws:latest; review journal for cockpit.service.
 - Permission errors: Confirm Label=disable is set in Quadlet. Check SELinux logs for denials.
