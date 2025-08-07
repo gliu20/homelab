@@ -1,71 +1,77 @@
 variant: fcos
 version: 1.6.0
-# Password authentication required for Cockpit login to work
-# Security: This is okay as long as central is not exposed
-# to the broader internet
+# Cockpit via Podman Quadlet
+# This runs the official cockpit/ws container using the image's RUN label semantics (privileged).
 storage:
   files:
+    # Ensure password auth is allowed for Cockpit login (optional if using other auth)
     - path: /etc/ssh/sshd_config.d/02-enable-passwords.conf
       mode: 0644
       contents:
         inline: |
           PasswordAuthentication yes
-systemd:
-  units:
-    # Installing layered packages with rpm-ostree following best practice
-    # in docs: https://docs.fedoraproject.org/en-US/fedora-coreos/os-extensions/
-    - name: rpm-ostree-install-cockpit.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Layer Cockpit with rpm-ostree
-        Wants=network-online.target
-        After=network-online.target
-        # We run before `zincati.service` to avoid conflicting rpm-ostree
-        # transactions.
-        Before=zincati.service
-        ConditionPathExists=!/var/lib/%N.stamp
+    # Podman Quadlet: define the Cockpit container
+    - path: /etc/containers/systemd/cockpit.container
+      mode: 0644
+      contents:
+        inline: |
+          [Unit]
+          Description=Cockpit Web Console (container)
+          Wants=network-online.target
+          After=network-online.target
 
-        [Service]
-        Type=oneshot
-        RemainAfterExit=yes
-        # Install packages with --allow-inactive to prevent failures
-        # if packages are already included in the base image
-        ExecStart=/usr/bin/rpm-ostree install -y --allow-inactive \
-          cockpit-system cockpit-ostree cockpit-networkmanager \
-          cockpit-podman cockpit-machines cockpit-selinux cockpit-storaged \
-          cockpit-sosreport cockpit-files \
-          # These do not yet exist in Core OS repos so we will have to manually
-          # install later
-          # cockpit-sensors cockpit-tailscale cockpit-navigator cockpit-file-sharing
-        ExecStart=/bin/touch /var/lib/%N.stamp
-        # A reboot-less approach is not reliable with apply-live as
-        # it can fail if the packages already exist. Hence, forcing a
-        # reboot whenever there is a pending deployment
-        ExecStart=/usr/bin/rpm-ostree status --pending-exit-77 && \
-          /bin/systemctl --no-block reboot
+          [Container]
+          Image=quay.io/cockpit/ws:latest
+          ContainerNAme=cockpit
+          PodmanArgs=--privileged
+          Network=host
+          SecurityLabelDisable=true
+          LogDriver=journald
 
+          # Allow managing the host:
+          # - systemd/journal via D-Bus and journal sockets
+          # - host identity via machine-id
+          # - Podman management via podman socket
+          # - Network management via NetworkManager D-Bus
+          Volume=/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
+          Volume=/run/systemd/journal:/run/systemd/journal
+          Volume=/etc/machine-id:/etc/machine-id:ro
+          Volume=/run/podman/podman.sock:/run/podman/podman.sock
+          Volume=/run/udev:/run/udev:ro
+          Volume=/sys/fs/cgroup:/sys/fs/cgroup:ro
+          Volume=/etc/localtime:/etc/localtime:ro
+          Volume=/etc/hostname:/etc/hostname:ro
+          Volume=/run/NetworkManager:/run/NetworkManager:ro
 
-        [Install]
-        WantedBy=multi-user.target
-    - name: enable-cockpit-ws.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Set up Cockpit web service
-        Wants=network-online.target
-        After=network-online.target
-        # Ensure Cockpit packages are installed first
-        After=rpm-ostree-install-cockpit.service
-        ConditionPathExists=!/var/lib/%N.stamp
+          # Privileges needed for host introspection and some management tasks.
+          # Try to keep minimal; add as needed.
+          AddCapability=SYS_ADMIN
+          AddCapability=SYS_CHROOT
+          AddCapability=SYS_PTRACE
+          AddCapability=NET_ADMIN
+          AddCapability=NET_RAW
+          AddCapability=SYS_TIME
 
-        [Service]
-        Type=oneshot
-        RemainAfterExit=yes
-        ExecStart=/usr/bin/podman container runlabel INSTALL quay.io/cockpit/ws
-        ExecStart=/usr/bin/podman container runlabel --name cockpit-ws RUN quay.io/cockpit/ws
-        ExecStart=/usr/bin/systemctl enable --now cockpit.service
-        ExecStart=/bin/touch /var/lib/%N.stamp
+          # Auto-update image from registry when available
+          AutoUpdate=registry
 
-        [Install]
-        WantedBy=multi-user.target
+          [Service]
+          # Pull image explicitly before starting, so TimeoutStartSec applies clearly
+          ExecStartPre=/bin/sh -c '/usr/bin/podman pull --retry=5 --retry-delay=15s quay.io/cockpit/ws:latest'
+          # Ensure we pull the newest image when starting
+          Pull=true
+          # Increase start timeout for slow pulls/starts
+          TimeoutStartSec=3600s
+          # Keep container running and auto-restart
+          Restart=always
+          # Disable start rate limiting to avoid "start request repeated too quickly"
+          StartLimitIntervalSec=0
+          StartLimitBurst=0
+          # Graceful stop
+          TimeoutStopSec=30s
+          # Helpful env for tooling and logs
+          Environment=CONTAINERS_SYSTEMD_UNIT=%n
+
+          [Install]
+          WantedBy=multi-user.target
+# Quadlet will synthesize cockpit.service from cockpit.container and apply [Install].
