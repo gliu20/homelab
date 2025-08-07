@@ -74,8 +74,6 @@ storage:
           AutoUpdate=registry
 
           [Service]
-          # Make startup robust on first pull
-          Pull=true
           Restart=always
           RestartSec=5
           TimeoutStartSec=300
