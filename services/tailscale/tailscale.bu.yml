@@ -1,29 +1,60 @@
 variant: fcos
 version: 1.6.0
+
 # Tailscale via Podman Quadlet
 # Runs tailscaled in a container with host networking and required privileges
 # to manage the host network stack via /dev/net/tun.
 #
 # State directory on host: /var/lib/tailscale
-# Optional env file for auth/config: /etc/tailscale/tailscale.env
-#   Example contents:
-#     TS_AUTHKEY=tskey-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-#     TS_STATE_DIR=/var/lib/tailscale
-#     TS_EXTRA_ARGS=--advertise-exit-node --accept-dns=true
-#
-# First boot:
-# - If TS_AUTHKEY is provided, the node will auto-register.
-# - Otherwise, run: sudo podman exec tailscaled tailscale up --login-server=https://controlplane (if custom)
+# Runtime directory on host: /var/run/tailscale
+# Environment file: /etc/tailscale/tailscale.env
+# First boot: If TS_AUTHKEY is provided, the node will auto-register.
+# Otherwise, run: sudo podman exec tailscaled tailscale up
+
 storage:
   directories:
-    # Persistent state for Tailscale
-    - path: /var/lib/tailscale
+    - path: /var/lib/tailscale  # Persistent state for Tailscale
       mode: 0755
-    # Optional env directory (not created by default if not used)
-    - path: /etc/tailscale
+      user:
+        id: 1000
+      group:
+        id: 1000
+    - path: /var/run/tailscale  # Runtime directory (volatile)
       mode: 0755
+      user:
+        id: 1000
+      group:
+        id: 1000
+    - path: /etc/tailscale      # Configuration directory
+      mode: 0755
+
   files:
-    # Quadlet container unit
+    - path: /etc/modules-load.d/tun.conf
+      overwrite: true
+      contents:
+        inline: tun
+
+    - path: /etc/tailscale/tailscale.env
+      mode: 0640
+      contents:
+        inline: |
+          # Tailscale environment variables
+          # Provide an auth key to auto-register (or leave commented):
+          # TS_AUTHKEY=tskey-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+          #
+          # State directory inside the container
+          TS_STATE_DIR=/var/lib/tailscale
+          #
+          # Socket directory inside the container
+          TS_SOCKET_DIR=/var/run/tailscale
+          #
+          # Extra flags passed to tailscaled (optional), e.g.:
+          # TS_EXTRA_ARGS=--advertise-exit-node --accept-dns=true
+          TS_EXTRA_ARGS=
+          #
+          # Authenticate to browser (optional)
+          TS_AUTHENTICATE_TO_BROWSER=true
+
     - path: /etc/containers/systemd/tailscale.container
       mode: 0644
       contents:
@@ -40,21 +71,30 @@ storage:
           AddCapability=NET_ADMIN NET_RAW
           AddDevice=/dev/net/tun
           SecurityLabelDisable=true
+          # Persist state on the host
+          Volume=/var/lib/tailscale:/var/lib/tailscale:Z
+          # Machine identity helps with stable node identity
+          Volume=/etc/machine-id:/etc/machine-id:ro
+          # Load env file (now ensured to exist)
+          EnvironmentFile=/etc/tailscale/tailscale.env
+          # Default environment (container-side)
+          Environment=TS_STATE_DIR=/var/lib/tailscale
+          # Run tailscaled in the foreground
+          Exec=/usr/local/bin/tailscaled --state=${TS_STATE_DIR}/tailscaled.state ${TS_EXTRA_ARGS}
+
+          # Logging to journald for easier debugging
           LogDriver=journald
 
-          # Persistent storage for Tailscale state
+          # Persistent storage
           Volume=/var/lib/tailscale:/var/lib/tailscale:Z
           Volume=/etc/machine-id:/etc/machine-id:ro
           Volume=/var/run/tailscale:/var/run/tailscale
 
           # Environment variables
-          Environment=TS_STATE_DIR=/var/lib/tailscale
-          Environment=TS_SOCKET_DIR=/var/run/tailscale
-          Environment=TS_AUTHENTICATE_TO_BROWSER=true
+          EnvironmentFile=/etc/tailscale/tailscale.env
 
-          Exec=/usr/local/bin/tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock
-
-          # Keep the container up and auto-update when image updates are available
+          # Execution
+          Exec=/usr/local/bin/tailscaled --state=${TS_STATE_DIR}/tailscaled.state --socket=${TS_SOCKET_DIR}/tailscaled.sock
           AutoUpdate=registry
 
           [Service]
@@ -62,10 +102,6 @@ storage:
           RestartSec=5
           TimeoutStartSec=300
           TimeoutStopSec=30
-
-          # Pre-start hooks
-          ExecStartPre=/bin/mkdir -p /var/lib/tailscale /var/run/tailscale
-          ExecStartPre=/bin/chown -R 1000:1000 /var/lib/tailscale /var/run/tailscale
 
           [Install]
           WantedBy=multi-user.target
