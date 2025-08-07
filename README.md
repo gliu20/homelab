@@ -36,14 +36,39 @@ graph TD
 - Cockpit web console for management
 - Tailscale mesh VPN for secure access
 
-## Service Catalog (planned or under evaluation)
+## Networking & Security
+- Tailscale mesh VPN for secure service exposure
+- Vaultwarden (Bitwarden-compatible password manager)
+- SOPS + Age for secrets management
 
-- Knowledge: Atomic Server, AFFiNE
-- Web & Bookmarks: Shiori, Grimoire, Servas
-- Security: Vaultwarden, SOPS + age for secrets
-- Micro-apps: Kinto (JSON storage)
-- DX: Gitea or Forgejo
-- Productivity: basic docs/wiki, TODO tracker, Waypipe, Excalidraw
+## Service Catalog
+
+### Knowledge Management
+- [Atomic Server](https://github.com/atomicdata-dev/atomic-server)
+- [AFFiNE](https://github.com/toeverything/AFFiNE) - [Docker Compose docs](https://docs.affine.pro/self-host-affine/install/docker-compose-recommend) - ********
+
+### Web & Bookmarks
+- Ideally would be able to archive pages for offline reading, keep list of links, maintain metadata about a link, screenshot/preview, shorten links
+- [Shiori](https://github.com/go-shiori/shiori) - Bookmarks
+- [Grimoire](https://github.com/goniszewski/grimoire) - Bookmarks
+- [Servas](https://github.com/beromir/Servas) - Bookmarks
+
+### Security
+- [Vaultwarden](https://github.com/dani-garcia/vaultwarden) - Password Manager
+- [SOPS](https://github.com/getsops/sops) - Dev Secrets (investigate AGE, too)
+
+### Micro-apps
+- [Kinto](https://github.com/Kinto/kinto/) - [Storage docs](https://docs.kinto-storage.org/en/stable/) - JSON storage
+
+### DX
+- [Gitea](https://github.com/go-gitea/gitea)
+- [Forgejo](https://codeberg.org/forgejo/forgejo)
+
+### Productivity
+- Excalidraw?
+- TODO tracker?
+- [Basic docs wiki](https://github.com/suitenumerique/docs)
+- [Waypipe](https://gitlab.freedesktop.org/mstoeckl/waypipe) - Remote software
 
 ## Repository Structure
 
