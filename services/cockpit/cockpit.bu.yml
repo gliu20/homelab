@@ -38,9 +38,6 @@ storage:
           # Minimal init inside container to handle signals/reaping
           RunInit=true
 
-          # Keep host UID/GID mapping straightforward (optional with User=0)
-          UserNS=keep-id
-
           # Log to journal for easier debugging
           LogDriver=journald
 
