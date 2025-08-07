@@ -5,19 +5,13 @@ version: 1.6.0
 # to manage the host network stack via /dev/net/tun.
 #
 # State directory on host: /var/lib/tailscale
-# Runtime directory on host: /var/run/tailscale
+# Runtime directory on host: /var/run/tailscale (created at service start)
 # Environment file: /etc/tailscale/tailscale.env
 # First boot: If TS_AUTHKEY is provided, the node will auto-register.
 # Otherwise, run: sudo podman exec tailscaled tailscale up
 storage:
   directories:
     - path: /var/lib/tailscale # Persistent state for Tailscale
-      mode: 0755
-      user:
-        id: 1000
-      group:
-        id: 1000
-    - path: /var/run/tailscale # Runtime directory (volatile)
       mode: 0755
       user:
         id: 1000
@@ -100,6 +94,10 @@ storage:
           RestartSec=5
           TimeoutStartSec=300
           TimeoutStopSec=30
+
+          # Pre-start hooks
+          ExecStartPre=/bin/mkdir -p /var/run/tailscale
+          ExecStartPre=/bin/chown -R 1000:1000 /var/run/tailscale
 
           [Install]
           WantedBy=multi-user.target
