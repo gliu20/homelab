@@ -115,3 +115,14 @@ Alternatively, directly:
 - Document ports, volumes, and environment for each service
 - Add CI to validate Butane and optionally boot a VM for smoke testing
 - Add backup plan and simple monitoring/alerts
+
+## References
+
+- Butane Getting Started: https://coreos.github.io/butane/getting-started/
+- Butane FCOS v1.6 Config: https://coreos.github.io/butane/config-fcos-v1_6/
+- Fedora CoreOS: https://docs.fedoraproject.org/en-US/fedora-coreos/
+- Podman systemd unit integration: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html
+- Cockpit on CoreOS: https://cockpit-project.org/running.html#coreos
+- Just Task Runner manual: https://just.systems/man/en/
+- Gitea Actions Guide: https://chrisliebaer.de/blog/gitea-actions/
+- age project (issue on host key integration): https://github.com/FiloSottile/age/issues/578
