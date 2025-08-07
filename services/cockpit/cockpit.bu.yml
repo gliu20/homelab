@@ -1,7 +1,7 @@
 variant: fcos
 version: 1.6.0
 # Cockpit via Podman Quadlet
-# This runs the official cockpit/ws container using the image's RUN label semantics (privileged).
+# Run the official cockpit/ws container in privileged mode using host networking.
 storage:
   files:
     # Ensure password auth is allowed for Cockpit login (optional if using other auth)
@@ -26,8 +26,14 @@ storage:
           PodmanArgs=--privileged
           # Use host network
           Network=host
+          # Avoid issues combining privileged with split cgroups on some podman versions
+          CgroupsMode=enabled
+          # Avoid SELinux denials for host access in privileged container
+          SecurityLabelDisable=true
+          # Log to journald for easier debugging
+          LogDriver=journald
 
-          # Host integration mounts
+          # Host integration mounts (not strictly required with --privileged, but useful)
           Volume=/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
           Volume=/run/systemd/journal:/run/systemd/journal
           Volume=/etc/machine-id:/etc/machine-id:ro
@@ -42,7 +48,7 @@ storage:
           AutoUpdate=registry
 
           [Service]
-          # Pull image explicitly before starting, so TimeoutStartSec applies clearly
+          # Pull image explicitly before starting so TimeoutStartSec applies clearly
           ExecStartPre=/bin/sh -c '/usr/bin/podman pull --retry=5 --retry-delay=15s quay.io/cockpit/ws:latest'
           # Ensure we pull the newest image when starting
           Pull=true
@@ -50,6 +56,8 @@ storage:
           TimeoutStartSec=3600s
           # Keep container running and auto-restart
           Restart=always
+          # Back off between restarts to avoid thrashing while debugging
+          RestartSec=3
           # Disable start rate limiting to avoid "start request repeated too quickly"
           StartLimitIntervalSec=0
           StartLimitBurst=0

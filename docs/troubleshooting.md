@@ -11,7 +11,7 @@ Build produces no .ign:
 Cannot pull images in just tasks:
 - The helper runs containers with hardened flags (no network for most).
 - For networked pulls, tasks use podman with slirp4netns when needed (e.g., coreos_installer).
-- If your podman needs auth, log in: podman login <registry>
+- If your podman needs auth, log in: podman login <registry)
 
 QEMU boots but services aren’t active:
 - Check that build/services/<name>/<name>.ign exists.
@@ -50,42 +50,30 @@ Password login not working:
   - sudo systemctl status cockpit.service
   - sudo journalctl -u cockpit.service -b --no-pager
 
-4) Check the underlying podman unit and container
-- sudo systemctl status podman-cockpit.service || true
-- sudo podman ps -a --filter name=cockpit
-- If not running, inspect logs:
-  - sudo podman logs cockpit || sudo podman logs $(sudo podman ps -a --format '{{.Names}}' | grep '^cockpit$')
+4) Get the exact Podman error (exit 125) if start fails
+- sudo journalctl -b -u cockpit.service --no-pager
+- sudo podman run --privileged --network host quay.io/cockpit/ws:latest 2>&1 | head -n 100
 
-5) Network and port checks
+5) Common fixes for privileged container start errors
+- On some Podman versions, privileged + Quadlet defaults (cgroups=split) fails:
+  - Add to [Container]: CgroupsMode=enabled
+- SELinux denials when accessing host resources:
+  - Add to [Container]: SecurityLabelDisable=true
+- For better logs:
+  - Add to [Container]: LogDriver=journald
+
+6) Network and port checks
 - Since Network=host is used, service should be on https://<host>:9090
 - Check listener:
   - sudo ss -lntp | grep ':9090'
 - If QEMU with port-forwarding, use https://localhost:9091
 
-6) SELinux denials
-- Quadlet config uses SecurityLabelDisable=true (equivalent to --security-opt label=disable).
-- If you remove that, and see AVCs:
-  - sudo ausearch -m AVC,USER_AVC -ts recent | audit2why
-  - sudo journalctl -b | grep -i avc
-
 7) DBus and system access mounts
 - Verify host sockets available in container:
-  - sudo podman exec cockpit ls -l /run/dbus/system_bus_socket /run/podman/podman.sock /run/systemd/journal || true
+  - sudo podman exec systemd-cockpit ls -l /run/dbus/system_bus_socket /run/podman/podman.sock /run/systemd/journal || true
 
 8) Regenerate after config changes
 - After changing the Quadlet, run:
   - sudo systemctl daemon-reload
   - sudo systemctl reenable cockpit.service
   - sudo systemctl restart cockpit.service
-
-Privileged-like mode
-- The upstream image’s RUN label uses podman --privileged.
-- Quadlet does not provide a single Privileged= key. This repo approximates --privileged via:
-  - User=0
-  - SecurityLabelDisable=true
-  - AddCapability=ALL
-  - Unmask=ALL
-  - RunInit=true
-- If you still hit permission issues, share the error from:
-  - sudo journalctl -u cockpit.service -b --no-pager
-  - sudo podman logs systemd-cockpit || true
