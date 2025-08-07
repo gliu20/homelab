@@ -51,27 +51,25 @@ storage:
           After=network-online.target
 
           [Container]
-          # Official Tailscale image (ghcr)
           Image=ghcr.io/tailscale/tailscale:stable
-          ContainerName=tailscaled
-          # Manage the host network stack
+          ContainerName=tailscale
           Network=host
-          # Required capabilities and access
-          AddCapability=NET_ADMIN
-          AddCapability=NET_RAW
-          # TUN device for WireGuard
+          AddCapability=NET_ADMIN NET_RAW
           AddDevice=/dev/net/tun
-          # Persist state on the host
+          
+          SecurityLabelDisable=true
+          LogDriver=journald
+
+          # Persistent storage for Tailscale state
           Volume=/var/lib/tailscale:/var/lib/tailscale:Z
           # Machine identity helps with stable node identity
           Volume=/etc/machine-id:/etc/machine-id:ro
-          # Load env file (now ensured to exist)
-          EnvironmentFile=/etc/tailscale/tailscale.env
-          # Default environment (container-side)
-          Environment=TS_STATE_DIR=/var/lib/tailscale
-          # Run tailscaled in the foreground
-          Exec=/usr/local/bin/tailscaled --state=${TS_STATE_DIR}/tailscaled.state ${TS_EXTRA_ARGS}
+          Volume=/var/run/tailscale:/var/run/tailscale
 
+          # Environment variables
+          Environment=TS_STATE_DIR=/var/lib/tailscale
+          Environment=TS_SOCKET_DIR=/var/run/tailscale
+          Environment=TS_AUTHENTICATE_TO_BROWSER=true
           # Logging to journald for easier debugging
           LogDriver=journald
           # Keep the container up and auto-update when image updates are available
@@ -83,7 +81,14 @@ storage:
           Restart=always
           RestartSec=5
           TimeoutStartSec=300
-          TimeoutStopSec=20
+          TimeoutStopSec=30
+
+          # Custom startup command
+          ExecStart=/usr/bin/tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock
+
+          # Pre-start hooks
+          ExecStartPre=/bin/mkdir -p /var/lib/tailscale /var/run/tailscale
+          ExecStartPre=/bin/chown -R 1000:1000 /var/lib/tailscale /var/run/tailscale
 
           [Install]
           WantedBy=multi-user.target
