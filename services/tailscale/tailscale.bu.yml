@@ -23,6 +23,10 @@ storage:
     - path: /etc/tailscale
       mode: 0755
   files:
+    - path: /etc/modules-load.d/tun.conf
+      overwrite: true
+      contents:
+        inline: tun
     # Provide a default env file so Quadlet EnvironmentFile= doesn't fail if the user hasn't created one yet.
     # Safe defaults: empty TS_EXTRA_ARGS, TS_STATE_DIR, and a commented TS_AUTHKEY line.
     - path: /etc/tailscale/tailscale.env
