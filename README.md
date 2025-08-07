@@ -99,11 +99,14 @@ just list-services     # Show managed services
 ## References
 
 ### Core Technologies
-- [Butane Documentation](https://coreos.github.io/butane/)
-- [Fedora CoreOS Docs](https://docs.fedoraproject.org/en-US/fedora-coreos/)
+- [Butane Getting Started](https://coreos.github.io/butane/getting-started/)
+- [Butane FCOS v1.6 Config](https://coreos.github.io/butane/config-fcos-v1_6/)
+- [Fedora CoreOS OS Extensions](https://docs.fedoraproject.org/en-US/fedora-coreos/os-extensions/)
 - [Podman Systemd Integration](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
+- [Fedora CoreOS Documentation](https://docs.fedoraproject.org/en-US/fedora-coreos/)
 
 ### Additional Resources
-- [Cockpit Project](https://cockpit-project.org/)
-- [Tailscale in CoreOS](https://tailscale.com/kb/1132/coreos/)
-- [SOPS with Age](https://github.com/FiloSottile/age)
+- [Cockpit on CoreOS](https://cockpit-project.org/running.html#coreos)
+- [Gitea Actions Guide](https://chrisliebaer.de/blog/gitea-actions/)
+- [Just Task Runner Manual](https://just.systems/man/en/)
+- [Age Encryption Issue #578](https://github.com/FiloSottile/age/issues/578)
