@@ -28,6 +28,10 @@ graph TD
     Tailscale -->|Secure Networking| All_Services
 ```
 
+## Post-install
+* rpm-ostree install --apply-live -y python
+* sudo podman exec -it tailscale sh --> tailscale up --> configure to add to tailscale
+
 ## Core Components
 
 - Fedora CoreOS (Immutable OS with automated updates)
@@ -70,18 +74,6 @@ graph TD
 - [Basic docs wiki](https://github.com/suitenumerique/docs)
 - [Waypipe](https://gitlab.freedesktop.org/mstoeckl/waypipe) - Remote software
 
-## Repository Structure
-
-```
-homelab/
-├── central.bu.yml          # Base system configuration
-├── justfile                # Task runner commands
-├── services/               # Service-specific configurations
-│   ├── cockpit/            # Management console
-│   ├── kinto/              # JSON storage service
-│   └── tailscale/          # VPN configuration
-└── README.md               # This documentation
-```
 
 ## Getting Started
 
