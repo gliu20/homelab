@@ -17,60 +17,37 @@ storage:
         inline: |
           [Unit]
           Description=Cockpit Web Console (container)
-          Wants=network-online.target
-          After=network-online.target
+          After=network-online.target sshd.service
+          Wants=network-online.target sshd.service
 
           [Container]
           Image=quay.io/cockpit/ws:latest
-          ContainerNAme=cockpit
-          PodmanArgs=--privileged
-          Network=host
+          ContainerName=cockpit
+
+          Privileged=true
           SecurityLabelDisable=true
+
           LogDriver=journald
 
-          # Allow managing the host:
-          # - systemd/journal via D-Bus and journal sockets
-          # - host identity via machine-id
-          # - Podman management via podman socket
-          # - Network management via NetworkManager D-Bus
+          Network=host
+
           Volume=/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
           Volume=/run/systemd/journal:/run/systemd/journal
-          Volume=/etc/machine-id:/etc/machine-id:ro
-          Volume=/run/podman/podman.sock:/run/podman/podman.sock
           Volume=/run/udev:/run/udev:ro
-          Volume=/sys/fs/cgroup:/sys/fs/cgroup:ro
-          Volume=/etc/localtime:/etc/localtime:ro
-          Volume=/etc/hostname:/etc/hostname:ro
-          Volume=/run/NetworkManager:/run/NetworkManager:ro
+          Volume=/etc/ssh:/etc/ssh:ro
+          Volume=/home:/home:ro
+          Volume=/root:/root:ro
 
-          # Privileges needed for host introspection and some management tasks.
-          # Try to keep minimal; add as needed.
-          AddCapability=SYS_ADMIN
-          AddCapability=SYS_CHROOT
-          AddCapability=SYS_PTRACE
-          AddCapability=NET_ADMIN
-          AddCapability=NET_RAW
-          AddCapability=SYS_TIME
+          Environment=COCKPIT_REMOTE_PEER=localhost
 
-          # Auto-update image from registry when available
           AutoUpdate=registry
+          Pull=always
 
           [Service]
-          # Pull image explicitly before starting, so TimeoutStartSec applies clearly
-          ExecStartPre=/bin/sh -c '/usr/bin/podman pull --retry=5 --retry-delay=15s quay.io/cockpit/ws:latest'
-          # Ensure we pull the newest image when starting
-          Pull=true
-          # Increase start timeout for slow pulls/starts
-          TimeoutStartSec=3600s
-          # Keep container running and auto-restart
           Restart=always
-          # Disable start rate limiting to avoid "start request repeated too quickly"
-          StartLimitIntervalSec=0
-          StartLimitBurst=0
-          # Graceful stop
-          TimeoutStopSec=30s
-          # Helpful env for tooling and logs
-          Environment=CONTAINERS_SYSTEMD_UNIT=%n
+          RestartSec=5
+          TimeoutStartSec=300
+          TimeoutStopSec=30
 
           [Install]
           WantedBy=multi-user.target
