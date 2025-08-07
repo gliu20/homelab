@@ -36,11 +36,7 @@ storage:
           # Host integration mounts (not strictly required with --privileged, but useful)
           Volume=/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
           Volume=/run/systemd/journal:/run/systemd/journal
-          Volume=/etc/machine-id:/etc/machine-id:ro
           Volume=/run/udev:/run/udev:ro
-          Volume=/sys/fs/cgroup:/sys/fs/cgroup:ro
-          Volume=/etc/localtime:/etc/localtime:ro
-          Volume=/etc/hostname:/etc/hostname:ro
           Volume=/run/NetworkManager:/run/NetworkManager:ro
           # Optional: Podman socket mount removed to avoid failure when socket is not present
 
