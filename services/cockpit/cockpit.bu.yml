@@ -25,18 +25,26 @@ storage:
           Image=quay.io/cockpit/ws:latest
           # Use host network to avoid port mapping complexity
           Network=host
-          # Disable SELinux confinement for this container
+
+          # Privileged-like settings (approximate podman --privileged)
+          # Run as root inside the container
+          User=0
+          # Disable SELinux confinement
           SecurityLabelDisable=true
-          # Keep host UID/GID mapping straightforward
+          # Give the container all capabilities
+          AddCapability=ALL
+          # Unmask all default masked paths
+          Unmask=ALL
+          # Minimal init inside container to handle signals/reaping
+          RunInit=true
+
+          # Keep host UID/GID mapping straightforward (optional with User=0)
           UserNS=keep-id
+
           # Log to journal for easier debugging
           LogDriver=journald
 
-          # Allow managing the host:
-          # - systemd/journal via D-Bus and journal sockets
-          # - host identity via machine-id
-          # - Podman management via podman socket
-          # - Network management via NetworkManager D-Bus
+          # Allow managing the host via sockets and metadata
           Volume=/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
           Volume=/run/systemd/journal:/run/systemd/journal
           Volume=/etc/machine-id:/etc/machine-id:ro
@@ -47,15 +55,6 @@ storage:
           Volume=/etc/hostname:/etc/hostname:ro
           # NetworkManager D-Bus (if managing networking)
           Volume=/run/NetworkManager:/run/NetworkManager:ro
-
-          # Privileges needed for host introspection and some management tasks.
-          # Try to keep minimal; add as needed.
-          AddCapability=SYS_ADMIN
-          AddCapability=SYS_CHROOT
-          AddCapability=SYS_PTRACE
-          AddCapability=NET_ADMIN
-          AddCapability=NET_RAW
-          AddCapability=SYS_TIME
 
           # Auto-update image from registry when available
           AutoUpdate=registry

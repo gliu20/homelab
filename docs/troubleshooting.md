@@ -62,9 +62,11 @@ Password login not working:
   - sudo ss -lntp | grep ':9090'
 - If QEMU with port-forwarding, use https://localhost:9091
 
-6) SELinux denials (even with Label=disable, verify)
-- sudo ausearch -m AVC,USER_AVC -ts recent | audit2why
-- sudo journalctl -b | grep -i avc
+6) SELinux denials
+- Quadlet config uses SecurityLabelDisable=true (equivalent to --security-opt label=disable).
+- If you remove that, and see AVCs:
+  - sudo ausearch -m AVC,USER_AVC -ts recent | audit2why
+  - sudo journalctl -b | grep -i avc
 
 7) DBus and system access mounts
 - Verify host sockets available in container:
@@ -76,7 +78,14 @@ Password login not working:
   - sudo systemctl reenable cockpit.service
   - sudo systemctl restart cockpit.service
 
-Common issues:
-- cockpit.service not found: The systemd generator (podman-system-generator) didn’t see the file. Ensure /etc/containers/systemd/cockpit.container exists, then run daemon-reload; check systemd-analyze --generators and the generator --dryrun output.
-- Image pull failures: Check network and run sudo podman pull quay.io/cockpit/ws:latest; review journal for cockpit.service.
-- Permission errors: Confirm Label=disable is set in Quadlet. Check SELinux logs for denials.
+Privileged-like mode
+- The upstream image’s RUN label uses podman --privileged.
+- Quadlet does not provide a single Privileged= key. This repo approximates --privileged via:
+  - User=0
+  - SecurityLabelDisable=true
+  - AddCapability=ALL
+  - Unmask=ALL
+  - RunInit=true
+- If you still hit permission issues, share the error from:
+  - sudo journalctl -u cockpit.service -b --no-pager
+  - sudo podman logs systemd-cockpit || true
