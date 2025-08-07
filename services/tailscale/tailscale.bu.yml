@@ -59,7 +59,6 @@ storage:
 
           # Persistent storage for Tailscale state
           Volume=/var/lib/tailscale:/var/lib/tailscale:Z
-          # Machine identity helps with stable node identity
           Volume=/etc/machine-id:/etc/machine-id:ro
           Volume=/var/run/tailscale:/var/run/tailscale
 
@@ -68,8 +67,7 @@ storage:
           Environment=TS_SOCKET_DIR=/var/run/tailscale
           Environment=TS_AUTHENTICATE_TO_BROWSER=true
 
-          # Command to run inside the container (replaces ExecStart in Service section)
-          Exec=/usr/bin/tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock
+          Exec=/usr/local/bin/tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock
 
           # Keep the container up and auto-update when image updates are available
           AutoUpdate=registry
