@@ -58,13 +58,14 @@ storage:
           # Allow reading host devices for storage views
           AddDevice=/dev
 
-          # Keep container running and auto-restart
-          Restart=always
+          # Auto-update image from registry when available
           AutoUpdate=registry
 
           [Service]
           # Ensure we pull the newest image when starting
           Pull=true
+          # Keep container running and auto-restart
+          Restart=always
           # Graceful stop
           TimeoutStopSec=30s
           KillMode=process
