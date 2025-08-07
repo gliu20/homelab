@@ -28,3 +28,11 @@ Cockpit implementation details:
 - systemd generates cockpit.service from that file at boot.
 - The Quadlet includes [Install] WantedBy=multi-user.target so the service is enabled automatically; no manual systemd unit is shipped.
 - Access is via https://<host>:9090 (host networking).
+
+Verify Cockpit:
+- sudo systemctl daemon-reload
+- sudo systemctl enable --now cockpit.service
+- sudo systemctl status cockpit.service
+- sudo podman ps -a --filter name=cockpit
+- sudo ss -lntp | grep ':9090'
+For deeper debugging steps, see Troubleshooting.
