@@ -59,7 +59,7 @@ storage:
           AddCapability=NET_RAW
           AddCapability=SYS_TIME
           # Allow reading host devices for storage views
-          Device=/dev
+          AddDevice=/dev
 
           # Keep container running and auto-restart
           Restart=always
