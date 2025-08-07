@@ -17,8 +17,8 @@ storage:
         inline: |
           [Unit]
           Description=Cockpit Web Console (container)
-          After=network-online.target
-          Wants=network-online.target
+          After=network-online.target sshd.service
+          Wants=network-online.target sshd.service
 
           [Container]
           Image=quay.io/cockpit/ws:latest
@@ -28,10 +28,16 @@ storage:
           SecurityLabelDisable=true
           LogDriver=journald
 
-          # Essential host integration mounts
+          # Essential mounts for SSH and system integration
           Volume=/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
           Volume=/run/systemd/journal:/run/systemd/journal
           Volume=/run/udev:/run/udev:ro
+          Volume=/etc/ssh:/etc/ssh:ro
+          Volume=/home:/home:ro
+          Volume=/root:/root:ro
+
+          # Environment for local SSH access
+          Environment=COCKPIT_REMOTE_PEER=localhost
 
           AutoUpdate=registry
 
