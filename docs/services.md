@@ -25,6 +25,20 @@ Notes:
 
 Cockpit implementation details:
 - Cockpit runs via Podman Quadlet defined at /etc/containers/systemd/cockpit.container.
-- systemd generates cockpit.service from that file at boot.
-- The Quadlet includes [Install] WantedBy=multi-user.target so the service is enabled automatically; no manual systemd unit is shipped.
+- systemd’s podman-system-generator reads that file on boot and daemon-reload, and generates cockpit.service dynamically.
+- The Quadlet includes [Install] WantedBy=multi-user.target, and the generator applies it (like systemctl enable) so the service becomes enabled automatically; no manual unit file is shipped.
 - Access is via https://<host>:9090 (host networking).
+
+Verify Cockpit:
+- sudo systemctl daemon-reload
+- sudo systemctl list-unit-files | grep -E '^cockpit\.service'
+- sudo systemctl status cockpit.service
+- sudo podman ps -a --filter name=cockpit
+- sudo ss -lntp | grep ':9090'
+
+Generator details:
+- The generator binary is /usr/lib/systemd/system-generators/podman-system-generator
+- View generator output/errors:
+  - systemd-analyze --generators
+  - /usr/lib/systemd/system-generators/podman-system-generator --dryrun
+For deeper debugging steps, see Troubleshooting.
