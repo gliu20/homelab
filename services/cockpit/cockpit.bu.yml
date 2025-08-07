@@ -29,6 +29,8 @@ storage:
           SecurityLabelDisable=true
           # Keep host UID/GID mapping straightforward
           UserNS=keep-id
+          # Log to journal for easier debugging
+          LogDriver=journald
 
           # Allow managing the host:
           # - systemd/journal via D-Bus and journal sockets
@@ -48,15 +50,12 @@ storage:
 
           # Privileges needed for host introspection and some management tasks.
           # Try to keep minimal; add as needed.
-          # SYS_ADMIN sometimes required by cockpit-storaged or others
           AddCapability=SYS_ADMIN
           AddCapability=SYS_CHROOT
           AddCapability=SYS_PTRACE
           AddCapability=NET_ADMIN
           AddCapability=NET_RAW
           AddCapability=SYS_TIME
-          # Allow reading host devices for storage views
-          AddDevice=/dev
 
           # Auto-update image from registry when available
           AutoUpdate=registry
