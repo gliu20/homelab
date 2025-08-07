@@ -7,9 +7,9 @@ A declarative Fedora CoreOS homelab configuration managed with Butane and Podman
 - Base FCOS provisioning with Butane:
   - central.bu.yml defines hostname, zram, Zincati update window, and merges per-service Ignition snippets.
 - Services (declarative, per-service directories):
-  - Cockpit: system console for host management (services/cockpit/).
-  - Tailscale: secure mesh VPN for remote access (services/tailscale/).
-  - Kinto: JSON storage micro-service (services/kinto/).
+  - Cockpit: system console for host management (services/cockpit/) — https://cockpit-project.org/
+  - Tailscale: secure mesh VPN for remote access (services/tailscale/) — https://tailscale.com/
+  - Kinto: JSON storage micro-service (services/kinto/) — https://github.com/Kinto/kinto
 - Build flow:
   - just build transpiles each *.bu.yml into build/.../*.ign using the Butane container.
   - central.bu.yml references those generated .ign via ignition.config.merge.
@@ -123,6 +123,9 @@ Alternatively, directly:
 - Fedora CoreOS: https://docs.fedoraproject.org/en-US/fedora-coreos/
 - Podman systemd unit integration: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html
 - Cockpit on CoreOS: https://cockpit-project.org/running.html#coreos
+- Cockpit project: https://cockpit-project.org/
+- Tailscale: https://tailscale.com/
+- Kinto: https://github.com/Kinto/kinto
 - Just Task Runner manual: https://just.systems/man/en/
 - Gitea Actions Guide: https://chrisliebaer.de/blog/gitea-actions/
 - age project (issue on host key integration): https://github.com/FiloSottile/age/issues/578
