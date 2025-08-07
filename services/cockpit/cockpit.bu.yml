@@ -16,51 +16,26 @@ storage:
       contents:
         inline: |
           [Unit]
-          Description=Cockpit Web Console (container)
-          Wants=network-online.target
+          Description=Cockpit Web Service Container
+          Documentation=man:cockpit-ws(8)
           After=network-online.target
+          Wants=network-online.target
 
           [Container]
-          Image=quay.io/cockpit/ws:latest
-          # Match image RUN label intent: run privileged
-          PodmanArgs=--privileged
-          # Use host network
-          Network=host
-          # Avoid issues combining privileged with split cgroups on some podman versions
-          CgroupsMode=enabled
-          # Avoid SELinux denials for host access in privileged container
+          Image=cockpit/ws
+          ContainerName=cockpit
+          PublishPort=9090:9090
+          Volume=/:/host:ro
+          Environment=COCKPIT_REMOTE_PEER=1
+          Privileged=true
           SecurityLabelDisable=true
-          # Log to journald for easier debugging
-          LogDriver=journald
-
-          # Host integration mounts (not strictly required with --privileged, but useful)
-          Volume=/run/dbus/system_bus_socket:/run/dbus/system_bus_socket
-          Volume=/run/systemd/journal:/run/systemd/journal
-          Volume=/run/udev:/run/udev:ro
-          Volume=/run/NetworkManager:/run/NetworkManager:ro
-          # Optional: Podman socket mount removed to avoid failure when socket is not present
-
-          # Auto-update image from registry when available
-          AutoUpdate=registry
+          Pull=always
 
           [Service]
-          # Pull image explicitly before starting so TimeoutStartSec applies clearly
-          ExecStartPre=/bin/sh -c '/usr/bin/podman pull --retry=5 --retry-delay=15s quay.io/cockpit/ws:latest'
-          # Ensure we pull the newest image when starting
-          Pull=true
-          # Increase start timeout for slow pulls/starts
-          TimeoutStartSec=3600s
-          # Keep container running and auto-restart
           Restart=always
-          # Back off between restarts to avoid thrashing while debugging
-          RestartSec=3
-          # Disable start rate limiting to avoid "start request repeated too quickly"
-          StartLimitIntervalSec=0
-          StartLimitBurst=0
-          # Graceful stop
-          TimeoutStopSec=30s
-          # Helpful env for tooling and logs
-          Environment=CONTAINERS_SYSTEMD_UNIT=%n
+          RestartSec=5
+          TimeoutStartSec=300
+          TimeoutStopSec=30
 
           [Install]
           WantedBy=multi-user.target
