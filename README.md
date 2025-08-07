@@ -17,15 +17,15 @@ graph TD
 ## Core Components
 
 ### Infrastructure Foundation
-- 🐧 Fedora CoreOS (Immutable OS with automated updates)
-- 🔥 Butane configurations for declarative provisioning
-- 🐳 Podman containers with systemd integration
-- ✈️ Cockpit web console for management
+- Fedora CoreOS (Immutable OS with automated updates)
+- Butane configurations for declarative provisioning
+- Podman containers with systemd integration
+- Cockpit web console for management
 
 ### Networking & Security
-- 🔒 Tailscale mesh VPN for secure service exposure
-- 🛡️ Vaultwarden (Bitwarden-compatible password manager)
-- 🔑 SOPS + Age for secrets management
+- Tailscale mesh VPN for secure service exposure
+- Vaultwarden (Bitwarden-compatible password manager)
+- SOPS + Age for secrets management
 
 ## Service Catalog
 
