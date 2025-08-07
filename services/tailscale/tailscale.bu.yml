@@ -1,62 +1,71 @@
 variant: fcos
 version: 1.6.0
-# Per https://github.com/tailscale/tailscale/issues/7409
-# there is no official way to install tailscale on atomic platforms
-# so we create the repo manually and layer it ourselves
+# Tailscale via Podman Quadlet
+# Runs tailscaled in a container with host networking and required privileges
+# to manage the host network stack via /dev/net/tun.
+#
+# State directory on host: /var/lib/tailscale
+# Optional env file for auth/config: /etc/tailscale/tailscale.env
+#   Example contents:
+#     TS_AUTHKEY=tskey-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+#     TS_STATE_DIR=/var/lib/tailscale
+#     TS_EXTRA_ARGS=--advertise-exit-node --accept-dns=true
+#
+# First boot:
+# - If TS_AUTHKEY is provided, the node will auto-register.
+# - Otherwise, run: sudo podman exec tailscaled tailscale up --login-server=https://controlplane (if custom)
 storage:
+  directories:
+    # Persistent state for Tailscale
+    - path: /var/lib/tailscale
+      mode: 0755
+    # Optional env directory (not created by default if not used)
+    - path: /etc/tailscale
+      mode: 0755
   files:
-    - path: /etc/yum.repos.d/tailscale.repo
+    # Quadlet container unit
+    - path: /etc/containers/systemd/tailscale.container
       mode: 0644
       contents:
-        local: services/tailscale/tailscale.repo
-systemd:
-  units:
-    # Installing layered packages with rpm-ostree following best practice
-    # in docs: https://docs.fedoraproject.org/en-US/fedora-coreos/os-extensions/
-    - name: rpm-ostree-install-tailscale.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Layer Tailscale with rpm-ostree
-        Wants=network-online.target
-        After=network-online.target
-        # We run before `zincati.service` to avoid conflicting rpm-ostree
-        # transactions.
-        Before=zincati.service
-        ConditionPathExists=!/var/lib/%N.stamp
+        inline: |
+          [Unit]
+          Description=Tailscale (container)
+          Wants=network-online.target
+          After=network-online.target
 
-        [Service]
-        Type=oneshot
-        RemainAfterExit=yes
-        # Install packages with --allow-inactive to prevent failures
-        # if packages are already included in the base image
-        ExecStart=/usr/bin/rpm-ostree install -y --allow-inactive tailscale
-        ExecStart=/bin/touch /var/lib/%N.stamp
-        # A reboot-less approach is not reliable with apply-live as
-        # it can fail if the packages already exist. Hence, forcing a
-        # reboot whenever there is a pending deployment
-        ExecStart=/usr/bin/rpm-ostree status --pending-exit-77 && \
-          /bin/systemctl --no-block reboot
+          [Container]
+          Image=ghcr.io/tailscale/tailscale:stable
+          ContainerName=tailscale
+          Network=host
+          AddCapability=NET_ADMIN NET_RAW
+          AddDevice=/dev/net/tun
+          SecurityLabelDisable=true
+          LogDriver=journald
 
-        [Install]
-        WantedBy=multi-user.target
-    # TODO: make sure to add tailscale up
-    - name: enable-tailscale.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Set up Tailscale service
-        Wants=network-online.target
-        After=network-online.target
-        # Ensure tailscale is installed
-        After=rpm-ostree-install-tailscale.service
-        ConditionPathExists=!/var/lib/%N.stamp
+          # Persistent storage for Tailscale state
+          Volume=/var/lib/tailscale:/var/lib/tailscale:Z
+          Volume=/etc/machine-id:/etc/machine-id:ro
+          Volume=/var/run/tailscale:/var/run/tailscale
 
-        [Service]
-        Type=oneshot
-        RemainAfterExit=yes
-        ExecStart=/usr/bin/systemctl enable --now tailscaled
-        ExecStart=/bin/touch /var/lib/%N.stamp
+          # Environment variables
+          Environment=TS_STATE_DIR=/var/lib/tailscale
+          Environment=TS_SOCKET_DIR=/var/run/tailscale
+          Environment=TS_AUTHENTICATE_TO_BROWSER=true
 
-        [Install]
-        WantedBy=multi-user.target
+          Exec=/usr/local/bin/tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/var/run/tailscale/tailscaled.sock
+
+          # Keep the container up and auto-update when image updates are available
+          AutoUpdate=registry
+
+          [Service]
+          Restart=always
+          RestartSec=5
+          TimeoutStartSec=300
+          TimeoutStopSec=30
+
+          # Pre-start hooks
+          ExecStartPre=/bin/mkdir -p /var/lib/tailscale /var/run/tailscale
+          ExecStartPre=/bin/chown -R 1000:1000 /var/lib/tailscale /var/run/tailscale
+
+          [Install]
+          WantedBy=multi-user.target
