@@ -68,7 +68,6 @@ storage:
           Restart=always
           # Graceful stop
           TimeoutStopSec=30s
-          KillMode=process
 
           [Install]
           WantedBy=multi-user.target
