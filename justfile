@@ -32,6 +32,10 @@ build:
     done
     echo "All *.bu.yml files have been transpiled."
 
+# Build only the main host Ignition
+build-central:
+    just transpile_ign central.bu.yml build/central.ign
+
 transpile_ign in_file="central.bu.yml" out_file="build/central.ign":
     @echo "Transpiling {{ in_file }} to {{ out_file }}"
     just butane "--pretty --strict --files-dir . \"{{ in_file }}\" -o \"{{ out_file }}\""
@@ -118,6 +122,33 @@ butane-format:
 just-format:
     just --fmt --unstable
     @echo "Done. Formatted justfile."
+
+# Validation and discovery helpers
+validate-configs:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    status=0
+    while IFS= read -r -d '' file; do
+        echo "Validating $file"
+        if ! just butane "--pretty --strict --files-dir . \"$file\" -o /dev/null" < /dev/null; then
+            echo "Validation failed: $file"
+            status=1
+        fi
+    done < <(find . -type f -name "*.bu.yml" -print0)
+    if [ "$status" -ne 0 ]; then
+        echo "One or more Butane files failed validation."
+        exit "$status"
+    fi
+    echo "All Butane files validated successfully."
+
+list-services:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "Services (*.bu.yml under services/):"
+    find services -type f -name "*.bu.yml" -printf " - %P\n" | sort || true
+    echo
+    echo "central.bu.yml ignition.config.merge targets:"
+    grep -E "local:\s+build/services/.+\.ign" -n central.bu.yml || true
 
 clean:
     #!/usr/bin/env bash
