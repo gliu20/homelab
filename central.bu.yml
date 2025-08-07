@@ -38,4 +38,5 @@ storage:
 passwd:
   users:
     - name: core
-      password_hash: TODO_ENTER_HASH
+      # Security: insecure hash for testing only
+      password_hash: $y$j9T$hZEAXBu3d9VCfNe.Po9Xx/$aKm8Lm7NKnt9ZtT4aXl4dlEs.a/IDeDSzYb0YlaBtw2
