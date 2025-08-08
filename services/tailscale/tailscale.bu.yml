@@ -82,8 +82,6 @@ storage:
           Volume=/etc/machine-id:/etc/machine-id:ro
           Volume=/var/run/tailscale:/var/run/tailscale
 
-          # Environment variables
-          EnvironmentFile=/etc/tailscale/tailscale.env
 
           # Execution
           Exec=/usr/local/bin/tailscaled --state=${TS_STATE_DIR}/tailscaled.state --socket=${TS_SOCKET_DIR}/tailscaled.sock
@@ -94,6 +92,11 @@ storage:
           RestartSec=5
           TimeoutStartSec=300
           TimeoutStopSec=30
+
+
+          # Environment variables must exist in service section due to 
+          # https://github.com/containers/podman/discussions/25053
+          EnvironmentFile=/etc/tailscale/tailscale.env
 
           # Pre-start hooks
           ExecStartPre=/bin/mkdir -p /var/run/tailscale
