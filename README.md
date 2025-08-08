@@ -153,4 +153,5 @@ Alternatively, directly:
 - Kinto: https://github.com/Kinto/kinto
 - Just Task Runner manual: https://just.systems/man/en/
 - Gitea Actions Guide: https://chrisliebaer.de/blog/gitea-actions/
-- age project (issue on host key integration): https://github.com/FiloSottile/age/issues/578
+- age post-quantum security: https://github.com/FiloSottile/age/issues/578
+- Podman Quadlet fails to fetch environment variables: https://github.com/containers/podman/discussions/25053 
