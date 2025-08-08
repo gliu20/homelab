@@ -1,48 +1,44 @@
 variant: fcos
 version: 1.5.0
-
 storage:
   directories:
     - path: /home/core/.config
       user:
         name: core
-        group:
-          name: core
+      group:
+        name: core
     - path: /home/core/.config/containers
       user:
         name: core
-        group:
-          name: core
+      group:
+        name: core
     - path: /home/core/.config/containers/systemd
       user:
         name: core
-        group:
-          name: core
+      group:
+        name: core
     - path: /home/core/pods/minecraft
       user:
         name: core
-        group:
-          name: core
+      group:
+        name: core
     - path: /home/core/pods/minecraft/data
       user:
         name: core
-        group:
-          name: core
-
+      group:
+        name: core
   files:
     - path: /var/lib/systemd/linger/core
       mode: 0644
-
     - path: /home/core/.config/containers/systemd/minecraft.volume
       contents:
         inline: |
           [Volume]
-        user:
-          name: core
-        group:
-          name: core
-        mode: 0644
-
+      user:
+        name: core
+      group:
+        name: core
+      mode: 0644
     - path: /home/core/.config/containers/systemd/minecraft.container
       contents:
         inline: |
@@ -64,8 +60,8 @@ storage:
 
           [Install]
           WantedBy=multi-user.target
-        user:
-          name: core
-        group:
-          name: core
-        mode: 0644
+      user:
+        name: core
+      group:
+        name: core
+      mode: 0644
