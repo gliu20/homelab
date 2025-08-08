@@ -5,7 +5,7 @@ ignition:
     merge:
       - local: build/services/cockpit/cockpit.ign
       - local: build/services/tailscale/tailscale.ign
-      - local: build/services/kinto/kinto.ign
+      - local: build/services/minecraft/minecraft.ign
 storage:
   files:
     - path: /etc/hostname
