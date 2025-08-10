@@ -47,6 +47,9 @@ graph TD
 
 ## Service Catalog
 
+### Networking
+- Caddy reverse proxy
+
 ### Knowledge Management
 - [Atomic Server](https://github.com/atomicdata-dev/atomic-server)
 - [AFFiNE](https://github.com/toeverything/AFFiNE) - [Docker Compose docs](https://docs.affine.pro/self-host-affine/install/docker-compose-recommend) - ********
