@@ -24,9 +24,6 @@ storage:
       overwrite: true
       contents:
         inline: tun
-
-    # Provide a default env file so Quadlet EnvironmentFile= doesn't fail if the user hasn't created one yet.
-    # Safe defaults: empty TS_EXTRA_ARGS, TS_STATE_DIR, and a commented TS_AUTHKEY line.
     - path: /etc/tailscale/tailscale.env
       mode: 0640
       contents:
@@ -63,25 +60,13 @@ storage:
           AddCapability=NET_ADMIN NET_RAW
           AddDevice=/dev/net/tun
           SecurityLabelDisable=true
-          # Persist state on the host
-          Volume=/var/lib/tailscale:/var/lib/tailscale:Z
-          # Machine identity helps with stable node identity
-          Volume=/etc/machine-id:/etc/machine-id:ro
-          # Load env file (now ensured to exist)
-          EnvironmentFile=/etc/tailscale/tailscale.env
-          # Default environment (container-side)
-          Environment=TS_STATE_DIR=/var/lib/tailscale
-          # Run tailscaled in the foreground
-          Exec=/usr/local/bin/tailscaled --state=${TS_STATE_DIR}/tailscaled.state ${TS_EXTRA_ARGS}
 
-          # Logging to journald for easier debugging
           LogDriver=journald
 
           # Persistent storage
           Volume=/var/lib/tailscale:/var/lib/tailscale:Z
           Volume=/etc/machine-id:/etc/machine-id:ro
           Volume=/var/run/tailscale:/var/run/tailscale
-
 
           # Execution
           Exec=/usr/local/bin/tailscaled --state=${TS_STATE_DIR}/tailscaled.state --socket=${TS_SOCKET_DIR}/tailscaled.sock
@@ -92,7 +77,6 @@ storage:
           RestartSec=5
           TimeoutStartSec=300
           TimeoutStopSec=30
-
 
           # Environment variables must exist in service section due to 
           # https://github.com/containers/podman/discussions/25053
