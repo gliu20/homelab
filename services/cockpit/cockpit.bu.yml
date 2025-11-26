@@ -24,6 +24,8 @@ storage:
           Image=quay.io/cockpit/ws:latest
           ContainerName=cockpit
 
+          # Cockpit requires elevated privileges to manage the host system.
+          # This is a security risk, but it is necessary for the service to function correctly.
           Privileged=true
           SecurityLabelDisable=true
 
