@@ -47,6 +47,8 @@ graph TD
 
 ## Service Catalog
 
+**Note:** The services listed below are candidates for inclusion and are not all implemented yet.
+
 ### Knowledge Management
 - [Atomic Server](https://github.com/atomicdata-dev/atomic-server)
 - [AFFiNE](https://github.com/toeverything/AFFiNE) - [Docker Compose docs](https://docs.affine.pro/self-host-affine/install/docker-compose-recommend) - ********
@@ -86,7 +88,7 @@ graph TD
 - Transpile all Butane configs to Ignition:
   - just build
 - The outputs are written as:
-  - build/services/**/service.ign (per service)
+  - build/services/<service-name>/<service-name>.ign (per service)
   - build/central.ign (when you run the explicit step below)
 
 To explicitly generate the final Ignition for the host:
@@ -117,6 +119,9 @@ Alternatively, directly:
 
 - Serve build artifacts locally (http://localhost:8000):
   - just serve
+
+- Clean all build artifacts:
+  - just clean
 
 ## Operations
 

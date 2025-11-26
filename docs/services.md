@@ -16,7 +16,7 @@ Ignition merge points (central.bu.yml):
 - build/services/kinto/kinto.ign
 
 Build output layout:
-- build/services/<name>/<name>.ign
+- build/services/<service-name>/<service-name>.ign
 - build/central.ign
 
 Notes:
