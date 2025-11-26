@@ -1,5 +1,5 @@
-# Default task when running `just` with no arguments
-default: all
+help:
+    @just --list
 
 # We expect just >= 1.39.0 for require function to work
 podman := require("podman")
@@ -16,8 +16,6 @@ sops_img             := "quay.io/getsops/sops:v3.10.2"
 yq_img               := "ghcr.io/mikefarah/yq:latest"
 
 # --- Primary Build Targets ---
-
-all: validate-configs build
 
 build:
     @echo "Transpiling all *.bu.yml files..."
@@ -52,9 +50,21 @@ serve: build
     @python -m http.server -d build 8000
 
 validate-configs:
-    @echo "Validating all Butane configs..."
-    @find . -type f -name "*.bu.yml" -exec bash -c 'just butane "--pretty --strict --files-dir . \"$0\" -o /dev/null"' '{}' \;
-    @echo "All Butane files validated successfully."
+    #!/usr/bin/env bash
+    set -euo pipefail
+    status=0
+    while IFS= read -r -d '' file; do
+        echo "Validating $file"
+        if ! just butane "--pretty --strict --files-dir . \"$file\" -o /dev/null" < /dev/null; then
+            echo "Validation failed: $file"
+            status=1
+        fi
+    done < <(find . -type f -name "*.bu.yml" -print0)
+    if [ "$status" -ne 0 ]; then
+        echo "One or more Butane files failed validation."
+        exit "$status"
+    fi
+    echo "All Butane files validated successfully."
 
 [group("qemu-test")]
 download_fcos:
@@ -124,9 +134,15 @@ yq-pretty-print in_file:
 
 # --- Podman Tool Wrappers ---
 
-# The seccomp=unconfined flag is a workaround for a podman issue in some environments.
 [group("podman-tools")]
 podman_run img args:
+    @podman run --interactive --rm -v "${PWD}:/pwd:Z" --workdir /pwd \
+    --security-opt=no-new-privileges --cap-drop=all --network=none \
+    "{{ img }}" {{ args }}
+
+# This is a workaround for seccomp issues in some environments (e.g., Ubuntu 24.04).
+[group("podman-tools")]
+podman_run_unconfined img args:
     @podman run --interactive --rm -v "${PWD}:/pwd:Z" --workdir /pwd \
     --security-opt=no-new-privileges --cap-drop=all --network=none \
     --security-opt seccomp=unconfined \
@@ -143,11 +159,10 @@ podman_run_w_network img args:
 podman_run_w_tty img args:
     @podman run --interactive --tty --rm -v "${PWD}:/pwd:Z" --workdir /pwd \
     --security-opt=no-new-privileges --cap-drop=all --network=none \
-    --security-opt seccomp=unconfined \
     "{{ img }}" {{ args }}
 
 [group("podman-tools")]
-butane args: (podman_run butane_img args)
+butane args: (podman_run_unconfined butane_img args)
 
 [group("podman-tools")]
 coreos_installer args: (podman_run_w_network coreos_installer_img args)

@@ -5,6 +5,7 @@ ignition:
     merge:
       - local: build/services/cockpit/cockpit.ign
       - local: build/services/tailscale/tailscale.ign
+      - local: build/services/kinto/kinto.ign
 storage:
   files:
     - path: /etc/hostname
@@ -37,6 +38,5 @@ storage:
 passwd:
   users:
     - name: core
-      # Security: Insecure password hash for testing purposes only.
-      # This password should be changed immediately on a production system.
+      # Security: insecure hash for testing only
       password_hash: $y$j9T$hZEAXBu3d9VCfNe.Po9Xx/$aKm8Lm7NKnt9ZtT4aXl4dlEs.a/IDeDSzYb0YlaBtw2
