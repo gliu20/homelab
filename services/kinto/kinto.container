@@ -1,2 +1,0 @@
-[Container]
-Image=docker.io/kinto/kinto-server:latest

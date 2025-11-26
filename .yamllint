@@ -1,0 +1,6 @@
+# .yamllint
+
+rules:
+  document-start: disable
+  line-length:
+    max: 160
