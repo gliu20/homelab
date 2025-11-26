@@ -61,10 +61,25 @@ podman_run img args:
     "{{ img }}" {{ args }}
 
 [group("podman-tools")]
+podman_run_unconfined img args:
+    @podman run --interactive --rm -v "${PWD}:/pwd:Z" --workdir /pwd \
+    --security-opt=no-new-privileges --cap-drop=all --network=none \
+    --security-opt seccomp=unconfined \
+    "{{ img }}" {{ args }}
+
+[group("podman-tools")]
 podman_run_w_network img args:
     @podman run --interactive --rm -v "${PWD}:/pwd:Z" --workdir /pwd \
     --security-opt=no-new-privileges --cap-drop=all \
     --network slirp4netns:enable_ipv6=false,allow_host_loopback=true \
+    "{{ img }}" {{ args }}
+
+[group("podman-tools")]
+podman_run_w_network_unconfined img args:
+    @podman run --interactive --rm -v "${PWD}:/pwd:Z" --workdir /pwd \
+    --security-opt=no-new-privileges --cap-drop=all \
+    --network slirp4netns:enable_ipv6=false,allow_host_loopback=true \
+    --security-opt seccomp=unconfined \
     "{{ img }}" {{ args }}
 
 [group("podman-tools")]
@@ -74,10 +89,10 @@ podman_run_w_tty img args:
     "{{ img }}" {{ args }}
 
 [group("podman-tools")]
-butane args: (podman_run butane_img args)
+butane args: (podman_run_unconfined butane_img args)
 
 [group("podman-tools")]
-coreos_installer args: (podman_run_w_network coreos_installer_img args)
+coreos_installer args: (podman_run_w_network_unconfined coreos_installer_img args)
 
 [group("podman-tools")]
 sops args: (podman_run sops_img args)
@@ -104,6 +119,11 @@ deploy_fcos_qemu:
     qemu-kvm -m 2048 -cpu host -nographic -snapshot \
     -drive "if=virtio,file=${IMAGE}" ${IGNITION_DEVICE_ARG} \
     -nic user,model=virtio,hostfwd=tcp::2222-:22,hostfwd=tcp::9091-:9090
+
+# Automated E2E tests
+test:
+    @echo "Running E2E tests..."
+    @./test/run_all_tests.sh
 
 [group("format")]
 butane-format:
